@@ -1,20 +1,20 @@
-use crate::solver::Solver;
+use crate::solver::DaySolver;
 
 pub struct DayNUM;
 
-impl Solver<'_> for DayNUM {
-    type Generated = u32;
+impl DaySolver<'_> for DayNUM {
+    type Parsed = u32;
     type Output = u32;
 
-    fn generator(input: &str) -> Self::Generated {
+    fn parse(input: &str) -> Self::Parsed {
         0
     }
 
-    fn part1(data: Self::Generated) -> Self::Output {
+    fn part1(data: Self::Parsed) -> Self::Output {
         0
     }
 
-    fn part2(data: Self::Generated) -> Self::Output {
+    fn part2(data: Self::Parsed) -> Self::Output {
         0
     }
 }

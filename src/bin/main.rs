@@ -1,8 +1,5 @@
-use aoc2020::days::*;
-use aoc2020::solver::Solver;
-use std::cmp::PartialEq;
-use std::fmt::Debug;
-use std::time::Instant;
+use aoc2020::{days::*, solver::DaySolver};
+use std::{cmp::PartialEq, fmt::Debug, time::Instant};
 
 macro_rules! day {
     ( $d:expr ) => {
@@ -25,10 +22,10 @@ macro_rules! day {
 }
 
 fn main() {
-    println!("AOC 2019");
+    println!("AOC 2020");
 }
 
-fn run<'a, S: Solver<'a>>(
+fn run<'a, S: DaySolver<'a>>(
     day_number: u8,
     input: &'a str,
     part1_output: Option<S::Output>,
@@ -37,32 +34,30 @@ fn run<'a, S: Solver<'a>>(
     let trimmed_input = input.trim();
 
     let start_time = Instant::now();
-    let generated = S::generator(trimmed_input);
-    let final_time = Instant::now();
+    let parsed = S::parse(trimmed_input);
+    let end_time = Instant::now();
 
-    println!(
-        "\nDay {}:\n\tgenerator : {:?}",
-        day_number,
-        (final_time - start_time)
-    );
+    println!("\nDay {}:", day_number);
+    println!("\tparser: {:?}", (end_time - start_time));
 
-    run_half(generated.clone(), 1, S::part1, part1_output);
-    run_half(generated, 2, S::part2, part2_output);
+    run_part(parsed.clone(), 1, S::part1, part1_output);
+    run_part(parsed, 2, S::part2, part2_output);
 }
 
-fn run_half<T, O: Debug + PartialEq>(
-    input: T,
+fn run_part<P, O: Debug + PartialEq>(
+    parsed: P,
     part_number: u8,
-    part: impl Fn(T) -> O,
+    part: impl Fn(P) -> O,
     expected_output: Option<O>,
 ) {
     print!("Part {}: ", part_number);
 
     let start_time = Instant::now();
-    let result = part(input);
-    let final_time = Instant::now();
+    let result = part(parsed);
+    let end_time = Instant::now();
 
-    println!("{:?}\n\trunner: {:?}", result, (final_time - start_time));
+    println!("{:?}", result);
+    println!("\tsolver: {:?}", (end_time - start_time));
 
     if let Some(expected) = expected_output {
         assert_eq!(expected, result);
