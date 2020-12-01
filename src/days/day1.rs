@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::solver::DaySolver;
+use crate::day_solver::DaySolver;
 
 pub struct Day1;
 

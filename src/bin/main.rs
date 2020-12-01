@@ -1,4 +1,4 @@
-use aoc2020::{days::*, solver::DaySolver};
+use aoc2020::{day_solver::DaySolver, days::*};
 use std::{cmp::PartialEq, fmt::Debug, time::Instant};
 
 macro_rules! day {
