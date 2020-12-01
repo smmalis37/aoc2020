@@ -1,11 +1,11 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 use crate::day_solver::DaySolver;
 
 pub struct Day1;
 
 impl DaySolver<'_> for Day1 {
-    type Parsed = HashSet<u32>;
+    type Parsed = BTreeSet<u32>;
     type Output = u32;
 
     fn parse(input: &str) -> Self::Parsed {
