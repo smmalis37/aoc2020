@@ -3,10 +3,11 @@ use std::collections::BTreeSet;
 use crate::day_solver::DaySolver;
 
 pub struct Day1;
+type Num = u32;
 
 impl DaySolver<'_> for Day1 {
-    type Parsed = BTreeSet<u32>;
-    type Output = u32;
+    type Parsed = BTreeSet<Num>;
+    type Output = Num;
 
     fn parse(input: &str) -> Self::Parsed {
         input.lines().map(|x| x.parse().unwrap()).collect()
