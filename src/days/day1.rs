@@ -1,22 +1,22 @@
-use std::collections::BTreeSet;
-
 use crate::day_solver::DaySolver;
 
 pub struct Day1;
 type Num = u32;
 
 impl DaySolver<'_> for Day1 {
-    type Parsed = BTreeSet<Num>;
+    type Parsed = Vec<Num>;
     type Output = Num;
 
     fn parse(input: &str) -> Self::Parsed {
-        input.lines().map(|x| x.parse().unwrap()).collect()
+        let mut res: Self::Parsed = input.lines().map(|x| x.parse().unwrap()).collect();
+        res.sort_unstable();
+        res
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
         for x in &data {
             let y = 2020 - x;
-            if data.contains(&y) {
+            if data.binary_search(&y).is_ok() {
                 return x * y;
             }
         }
@@ -28,7 +28,7 @@ impl DaySolver<'_> for Day1 {
             let rem = 2020 - x;
             for y in 0..rem {
                 let z = rem - y;
-                if data.contains(&y) && data.contains(&z) {
+                if data.binary_search(&y).is_ok() && data.binary_search(&z).is_ok() {
                     return x * y * z;
                 }
             }
