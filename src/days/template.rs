@@ -7,15 +7,15 @@ impl DaySolver<'_> for DayNUM {
     type Output = u32;
 
     fn parse(input: &str) -> Self::Parsed {
-        0
+        todo!()
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        0
+        todo!()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        0
+        todo!()
     }
 }
 
