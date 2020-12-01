@@ -14,9 +14,9 @@ impl DaySolver<'_> for Day1 {
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        for x in &data {
+        for (i, x) in data.iter().enumerate() {
             let y = 2020 - x;
-            if data.binary_search(&y).is_ok() {
+            if data[i + 1..].binary_search(&y).is_ok() {
                 return x * y;
             }
         }
@@ -24,11 +24,10 @@ impl DaySolver<'_> for Day1 {
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        for x in &data {
-            let rem = 2020 - x;
-            for y in 0..rem {
-                let z = rem - y;
-                if data.binary_search(&y).is_ok() && data.binary_search(&z).is_ok() {
+        for (i, x) in data.iter().enumerate() {
+            for (j, y) in data[i + 1..].iter().enumerate() {
+                let z = 2020 - x - y;
+                if data[i + j + 1..].binary_search(&z).is_ok() {
                     return x * y * z;
                 }
             }
