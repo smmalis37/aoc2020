@@ -23,7 +23,16 @@ impl DaySolver<'_> for Day1 {
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        0
+        for x in &data {
+            let rem = 2020 - x;
+            for y in 0..rem {
+                let z = rem - y;
+                if data.contains(&y) && data.contains(&z) {
+                    return x * y * z;
+                }
+            }
+        }
+        unreachable!()
     }
 }
 
@@ -47,5 +56,17 @@ mod tests {
     }
 
     #[test]
-    fn d1p2() {}
+    fn d1p2() {
+        assert_eq!(
+            Day1::part2(Day1::parse(
+                "1721
+979
+366
+299
+675
+1456"
+            )),
+            979 * 366 * 675
+        );
+    }
 }

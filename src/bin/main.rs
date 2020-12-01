@@ -23,7 +23,7 @@ macro_rules! day {
 
 fn main() {
     println!("AOC 2020");
-    day!(1, 964875);
+    day!(1, 964875, 158661360);
 }
 
 fn run<'a, S: DaySolver<'a>>(
