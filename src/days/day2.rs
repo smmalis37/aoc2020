@@ -6,8 +6,8 @@ pub struct Day2;
 pub struct Password<'a> {
     num1: usize,
     num2: usize,
-    character: char,
-    password: &'a str,
+    character: u8,
+    password: &'a [u8],
 }
 
 impl<'a> DaySolver<'a> for Day2 {
@@ -18,12 +18,13 @@ impl<'a> DaySolver<'a> for Day2 {
         input
             .lines()
             .map(|x| {
-                let (num1, num2, character, password) = scan!("{}-{} {}: {}" <- x).unwrap();
+                let (num1, num2, character, password): (_, _, char, &str) =
+                    scan!("{}-{} {}: {}" <- x).unwrap();
                 Password {
                     num1,
                     num2,
-                    character,
-                    password,
+                    character: character as u8,
+                    password: password.as_bytes(),
                 }
             })
             .collect()
@@ -31,15 +32,14 @@ impl<'a> DaySolver<'a> for Day2 {
 
     fn part1(data: Self::Parsed) -> Self::Output {
         data.into_iter()
-            .filter(|p| (p.num1..=p.num2).contains(&p.password.matches(p.character).count()))
+            .filter(|p| (p.num1..=p.num2).contains(&bytecount::count(p.password, p.character)))
             .count()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
         data.into_iter()
             .filter(|p| {
-                (p.password.as_bytes()[p.num1 - 1] as char == p.character)
-                    != (p.password.as_bytes()[p.num2 - 1] as char == p.character)
+                (p.password[p.num1 - 1] == p.character) != (p.password[p.num2 - 1] == p.character)
             })
             .count()
     }
