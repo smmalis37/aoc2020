@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 paste = "1"
-serde_scan = "0.4"
+serde_scan = "0.4.1"
 bytecount = "0.6"
 
 [profile.release]

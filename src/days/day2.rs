@@ -18,13 +18,13 @@ impl<'a> DaySolver<'a> for Day2 {
         input
             .lines()
             .map(|x| {
-                let (num1, num2, character, password): (_, _, char, &str) =
+                let (num1, num2, character, password): (_, _, char, _) =
                     scan!("{}-{} {}: {}" <- x).unwrap();
                 Password {
                     num1,
                     num2,
                     character: character as u8,
-                    password: password.as_bytes(),
+                    password,
                 }
             })
             .collect()
