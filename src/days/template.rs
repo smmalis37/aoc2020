@@ -1,4 +1,4 @@
-use crate::solver::DaySolver;
+use crate::day_solver::DaySolver;
 
 pub struct DayNUM;
 
