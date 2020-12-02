@@ -1,12 +1,11 @@
-use std::ops::RangeInclusive;
-
 use crate::day_solver::DaySolver;
 
 pub struct Day2;
 
 #[derive(Clone)]
 pub struct Password<'a> {
-    count: RangeInclusive<usize>,
+    num1: usize,
+    num2: usize,
     character: char,
     password: &'a str,
 }
@@ -19,9 +18,10 @@ impl<'a> DaySolver<'a> for Day2 {
         input
             .lines()
             .map(|x| {
-                let (min, max, character, password) = scan!("{}-{} {}: {}" <- x).unwrap();
+                let (num1, num2, character, password) = scan!("{}-{} {}: {}" <- x).unwrap();
                 Password {
-                    count: min..=max,
+                    num1,
+                    num2,
                     character,
                     password,
                 }
@@ -31,12 +31,17 @@ impl<'a> DaySolver<'a> for Day2 {
 
     fn part1(data: Self::Parsed) -> Self::Output {
         data.into_iter()
-            .filter(|p| p.count.contains(&p.password.matches(p.character).count()))
+            .filter(|p| (p.num1..=p.num2).contains(&p.password.matches(p.character).count()))
             .count()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        todo!()
+        data.into_iter()
+            .filter(|p| {
+                (p.password.as_bytes()[p.num1 - 1] as char == p.character)
+                    != (p.password.as_bytes()[p.num2 - 1] as char == p.character)
+            })
+            .count()
     }
 }
 
@@ -57,5 +62,14 @@ mod tests {
     }
 
     #[test]
-    fn d2p2() {}
+    fn d2p2() {
+        assert_eq!(
+            Day2::part2(Day2::parse(
+                "1-3 a: abcde
+1-3 b: cdefg
+2-9 c: ccccccccc"
+            )),
+            1
+        );
+    }
 }
