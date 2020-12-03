@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use crate::day_solver::DaySolver;
 
 pub struct Day3;
@@ -15,39 +17,30 @@ impl DaySolver<'_> for Day3 {
     }
 
     fn part1(map: Self::Parsed) -> Self::Output {
-        run_slopes(map, &[(1, 3)])
+        run_slope(&map, 1, 3)
     }
 
     fn part2(map: Self::Parsed) -> Self::Output {
-        run_slopes(map, &[(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)])
+        run_slope(&map, 1, 1)
+            * run_slope(&map, 1, 3)
+            * run_slope(&map, 1, 5)
+            * run_slope(&map, 1, 7)
+            * run_slope(&map, 2, 1)
     }
 }
 
-fn run_slopes<'a>(
-    map: <Day3 as DaySolver>::Parsed,
-    slopes: &[(usize, usize)],
+fn run_slope<'a>(
+    map: &<Day3 as DaySolver>::Parsed,
+    y_count: usize,
+    x_count: usize,
 ) -> <Day3 as DaySolver<'a>>::Output {
-    let mut xs = vec![0; slopes.len()];
-    let mut counts = vec![0; slopes.len()];
-    for (y_i, y) in map.into_iter().enumerate() {
-        for (i, x) in xs.iter_mut().enumerate() {
-            if y_i % slopes[i].0 != 0 {
-                continue;
-            }
-
-            if y[*x] {
-                counts[i] += 1;
-            }
-
-            *x += slopes[i].1;
-            let line_len = y.len();
-            if *x >= line_len {
-                *x -= line_len;
-            }
-        }
-    }
-
-    counts.into_iter().product()
+    map.iter()
+        .step_by(y_count)
+        .enumerate()
+        .filter(|(i, y)| y[i * x_count % y.len()])
+        .count()
+        .try_into()
+        .unwrap()
 }
 
 #[cfg(test)]
