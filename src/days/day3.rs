@@ -15,47 +15,39 @@ impl DaySolver<'_> for Day3 {
     }
 
     fn part1(map: Self::Parsed) -> Self::Output {
-        let mut x = 0;
-        let mut count = 0;
-        for y in map {
-            if y[x] {
-                count += 1;
-            }
-
-            x += 3;
-            let line_len = y.len();
-            if x >= line_len {
-                x -= line_len;
-            }
-        }
-
-        count
+        run_slopes(map, &[(1, 3)])
     }
 
     fn part2(map: Self::Parsed) -> Self::Output {
-        let mut xs = [0; 5];
-        let slopes = [(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)];
-        let mut counts = [0; 5];
-        for (y_i, y) in map.into_iter().enumerate() {
-            for (i, x) in xs.iter_mut().enumerate() {
-                if y_i % slopes[i].0 != 0 {
-                    continue;
-                }
+        run_slopes(map, &[(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)])
+    }
+}
 
-                if y[*x] {
-                    counts[i] += 1;
-                }
+fn run_slopes<'a>(
+    map: <Day3 as DaySolver>::Parsed,
+    slopes: &[(usize, usize)],
+) -> <Day3 as DaySolver<'a>>::Output {
+    let mut xs = vec![0; slopes.len()];
+    let mut counts = vec![0; slopes.len()];
+    for (y_i, y) in map.into_iter().enumerate() {
+        for (i, x) in xs.iter_mut().enumerate() {
+            if y_i % slopes[i].0 != 0 {
+                continue;
+            }
 
-                *x += slopes[i].1;
-                let line_len = y.len();
-                if *x >= line_len {
-                    *x -= line_len;
-                }
+            if y[*x] {
+                counts[i] += 1;
+            }
+
+            *x += slopes[i].1;
+            let line_len = y.len();
+            if *x >= line_len {
+                *x -= line_len;
             }
         }
-
-        counts.into_iter().product()
     }
+
+    counts.into_iter().product()
 }
 
 #[cfg(test)]
