@@ -25,7 +25,7 @@ fn main() {
     println!("AOC 2020");
     day!(1, 964875, 158661360);
     day!(2, 515, 711);
-    day!(3);
+    day!(3, 292, 9354744432);
 }
 
 fn run<'a, S: DaySolver<'a>>(
