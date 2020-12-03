@@ -16,7 +16,7 @@ macro_rules! day {
 
     ( $d:expr => $o1:expr, $o2:expr ) => {
         paste::expr! {
-            run::<[<day $d>]::[<Day $d>]>($d, include_str!(concat!("../../input/2020/day", $d, ".txt")), $o1, $o2);
+            solve::<[<day $d>]::[<Day $d>]>($d, include_str!(concat!("../../input/2020/day", $d, ".txt")).trim(), $o1, $o2);
         }
     };
 }
@@ -28,16 +28,30 @@ fn main() {
     day!(3, 292, 9354744432);
 }
 
+fn solve<'a, S: DaySolver<'a>>(
+    day_number: u8,
+    input: &'a str,
+    part1_output: Option<S::Output>,
+    part2_output: Option<S::Output>,
+) {
+    let mut args = std::env::args();
+    if args.len() > 1 {
+        if args.any(|x| x == day_number.to_string()) {
+            bench::<S>(day_number, input);
+        }
+    } else {
+        run::<S>(day_number, input, part1_output, part2_output);
+    }
+}
+
 fn run<'a, S: DaySolver<'a>>(
     day_number: u8,
     input: &'a str,
     part1_output: Option<S::Output>,
     part2_output: Option<S::Output>,
 ) {
-    let trimmed_input = input.trim();
-
     let start_time = Instant::now();
-    let parsed = S::parse(trimmed_input);
+    let parsed = S::parse(input);
     let end_time = Instant::now();
 
     println!("\nDay {}:", day_number);
@@ -65,4 +79,23 @@ fn run_part<P, O: Debug + PartialEq>(
     if let Some(expected) = expected_output {
         assert_eq!(expected, result);
     }
+}
+
+fn bench<'a, S: DaySolver<'a>>(day_number: u8, input: &'a str) {
+    let mut criterion = criterion::Criterion::default().without_plots();
+    let mut group = criterion.benchmark_group(format!("Day {}", day_number));
+
+    group.bench_with_input("parser", &input, |b, i| {
+        b.iter_with_large_drop(|| S::parse(i));
+    });
+
+    let parsed = S::parse(input);
+
+    group.bench_with_input("part 1", &parsed, |b, i| {
+        b.iter_batched(|| i.clone(), S::part1, criterion::BatchSize::SmallInput)
+    });
+
+    group.bench_with_input("part 2", &parsed, |b, i| {
+        b.iter_batched(|| i.clone(), S::part2, criterion::BatchSize::SmallInput)
+    });
 }

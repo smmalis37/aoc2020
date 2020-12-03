@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 paste = "1"
+criterion = "0.3"
 serde_scan = "0.4.1"
 bytecount = "0.6"
 
