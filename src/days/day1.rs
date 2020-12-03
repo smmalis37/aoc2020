@@ -1,11 +1,10 @@
 use crate::day_solver::DaySolver;
 
 pub struct Day1;
-type Num = u32;
 
 impl DaySolver<'_> for Day1 {
-    type Parsed = Vec<Num>;
-    type Output = Num;
+    type Parsed = Vec<Self::Output>;
+    type Output = u32;
 
     fn parse(input: &str) -> Self::Parsed {
         let mut res: Self::Parsed = input.lines().map(|x| x.parse().unwrap()).collect();
