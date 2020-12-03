@@ -15,29 +15,27 @@ impl DaySolver<'_> for Day3 {
     }
 
     fn part1(map: Self::Parsed) -> Self::Output {
-        run_slopes(map, &[(1, 3)])
+        run_slope(&map, (1, 3))
     }
 
     fn part2(map: Self::Parsed) -> Self::Output {
-        run_slopes(map, &[(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)])
+        [(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)]
+            .iter()
+            .map(|&s| run_slope(&map, s))
+            .product()
     }
 }
 
-fn run_slopes<'a>(
-    map: <Day3 as DaySolver>::Parsed,
-    slopes: &[(usize, usize)],
+fn run_slope<'a>(
+    map: &<Day3 as DaySolver>::Parsed,
+    (y_count, x_count): (usize, usize),
 ) -> <Day3 as DaySolver<'a>>::Output {
     let line_length = map[0].len();
-    slopes
-        .iter()
-        .map(|&(y_count, x_count)| {
-            map.iter()
-                .step_by(y_count)
-                .enumerate()
-                .filter(|(i, y)| y[i * x_count % line_length])
-                .count() as <Day3 as DaySolver<'_>>::Output
-        })
-        .product()
+    map.iter()
+        .step_by(y_count)
+        .enumerate()
+        .filter(|(i, y)| y[i * x_count % line_length])
+        .count() as <Day3 as DaySolver<'_>>::Output
 }
 
 #[cfg(test)]
