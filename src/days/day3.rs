@@ -27,13 +27,14 @@ fn run_slopes<'a>(
     map: <Day3 as DaySolver>::Parsed,
     slopes: &[(usize, usize)],
 ) -> <Day3 as DaySolver<'a>>::Output {
+    let line_length = map[0].len();
     slopes
         .iter()
         .map(|&(y_count, x_count)| {
             map.iter()
                 .step_by(y_count)
                 .enumerate()
-                .filter(|(i, y)| y[i * x_count % y.len()])
+                .filter(|(i, y)| y[i * x_count % line_length])
                 .count() as <Day3 as DaySolver<'_>>::Output
         })
         .product()
