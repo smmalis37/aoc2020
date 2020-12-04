@@ -1,16 +1,17 @@
 use crate::day_solver::DaySolver;
+use bstr_parse::*;
 
 pub struct Day4;
 
 #[derive(Builder, Clone)]
 pub struct Passport<'a> {
-    birth_year: &'a str,
-    issue_year: &'a str,
-    exp_year: &'a str,
-    height: &'a str,
-    hair_color: &'a str,
-    eye_color: &'a str,
-    pass_id: &'a str,
+    birth_year: &'a [u8],
+    issue_year: &'a [u8],
+    exp_year: &'a [u8],
+    height: &'a [u8],
+    hair_color: &'a [u8],
+    eye_color: &'a [u8],
+    pass_id: &'a [u8],
 }
 
 impl<'a> DaySolver<'a> for Day4 {
@@ -21,7 +22,7 @@ impl<'a> DaySolver<'a> for Day4 {
         let mut pass = PassportBuilder::default();
         let mut results = Vec::new();
 
-        for field in input.split(&['\n', ' '][..]) {
+        for field in input.as_bytes().split(|&c| c == b'\n' || c == b' ') {
             if field.is_empty() {
                 if let Ok(p) = pass.build() {
                     results.push(p);
@@ -33,14 +34,14 @@ impl<'a> DaySolver<'a> for Day4 {
                 let value = &field[colon + 1..];
 
                 match key {
-                    "byr" => pass.birth_year(value),
-                    "iyr" => pass.issue_year(value),
-                    "eyr" => pass.exp_year(value),
-                    "hgt" => pass.height(value),
-                    "hcl" => pass.hair_color(value),
-                    "ecl" => pass.eye_color(value),
-                    "pid" => pass.pass_id(value),
-                    "cid" => &mut pass,
+                    b"byr" => pass.birth_year(value),
+                    b"iyr" => pass.issue_year(value),
+                    b"eyr" => pass.exp_year(value),
+                    b"hgt" => pass.height(value),
+                    b"hcl" => pass.hair_color(value),
+                    b"ecl" => pass.eye_color(value),
+                    b"pid" => pass.pass_id(value),
+                    b"cid" => &mut pass,
                     _ => unreachable!(),
                 };
             }
@@ -75,8 +76,8 @@ impl<'a> DaySolver<'a> for Day4 {
 
             let height_num_index = p.height.len() - 2;
             let height_range = match &p.height[height_num_index..] {
-                "in" => 59..=76,
-                "cm" => 150..=193,
+                b"in" => 59..=76,
+                b"cm" => 150..=193,
                 _ => continue,
             };
             if !height_range.contains(&p.height[..height_num_index].parse().unwrap()) {
@@ -84,17 +85,26 @@ impl<'a> DaySolver<'a> for Day4 {
             }
 
             if !(p.hair_color.len() == 7
-                && &p.hair_color[0..1] == "#"
-                && p.hair_color[1..].chars().all(|c| c.is_ascii_hexdigit()))
+                && &p.hair_color[0..1] == b"#"
+                && p.hair_color[1..]
+                    .iter()
+                    .map(|&x| x as char)
+                    .all(|c| c.is_ascii_hexdigit()))
             {
                 continue;
             }
 
-            if !["amb", "blu", "brn", "gry", "grn", "hzl", "oth"].contains(&p.eye_color) {
+            let eye_colors: &[&[u8]] = &[b"amb", b"blu", b"brn", b"gry", b"grn", b"hzl", b"oth"];
+            if !eye_colors.contains(&p.eye_color) {
                 continue;
             }
 
-            if !(p.pass_id.len() == 9 && p.pass_id.chars().all(|c| c.is_ascii_digit())) {
+            if !(p.pass_id.len() == 9
+                && p.pass_id
+                    .iter()
+                    .map(|&x| x as char)
+                    .all(|c| c.is_ascii_digit()))
+            {
                 continue;
             }
 

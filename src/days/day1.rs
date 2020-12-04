@@ -1,4 +1,5 @@
 use crate::day_solver::DaySolver;
+use bstr_parse::*;
 
 pub struct Day1;
 
@@ -7,7 +8,11 @@ impl DaySolver<'_> for Day1 {
     type Output = u32;
 
     fn parse(input: &str) -> Self::Parsed {
-        let mut res: Self::Parsed = input.lines().map(|x| x.parse().unwrap()).collect();
+        let mut res: Self::Parsed = input
+            .as_bytes()
+            .split(|&x| x == b'\n')
+            .map(|x| x.parse().unwrap())
+            .collect();
         res.sort_unstable();
         res
     }
