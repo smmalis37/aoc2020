@@ -1,3 +1,5 @@
+use serde_scan::scan;
+
 use crate::day_solver::DaySolver;
 
 pub struct Day2;

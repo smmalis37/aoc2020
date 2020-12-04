@@ -4,4 +4,4 @@ pub mod day_solver;
 pub mod days;
 
 #[macro_use]
-extern crate serde_scan;
+extern crate derive_builder;
