@@ -3,7 +3,7 @@ use crate::day_solver::DaySolver;
 pub struct Day5;
 
 impl<'a> DaySolver<'a> for Day5 {
-    type Parsed = Vec<u16>;
+    type Parsed = Vec<Self::Output>;
     type Output = u16;
 
     fn parse(input: &'a str) -> Self::Parsed {
@@ -26,15 +26,15 @@ impl<'a> DaySolver<'a> for Day5 {
             result.push(num)
         }
 
-        result.sort_unstable();
         result
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        *data.last().unwrap()
+        data.into_iter().max().unwrap()
     }
 
-    fn part2(data: Self::Parsed) -> Self::Output {
+    fn part2(mut data: Self::Parsed) -> Self::Output {
+        data.sort_unstable();
         for i in 0..data.len() - 1 {
             if data[i] + 1 != data[i + 1] {
                 return data[i] + 1;
@@ -58,7 +58,7 @@ BFFFBBFRRR
 FFFBBBFRRR
 BBFFBBFRLL"
             ),
-            &[119, 357, 567, 820]
+            &[357, 567, 119, 820]
         );
     }
 }
