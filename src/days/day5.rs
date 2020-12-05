@@ -35,9 +35,9 @@ impl<'a> DaySolver<'a> for Day5 {
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        for i in 1..data.len() {
-            if data[i - 1] != data[i] - 1 {
-                return data[i] - 1;
+        for i in 0..data.len() - 1 {
+            if data[i] + 1 != data[i + 1] {
+                return data[i] + 1;
             }
         }
 
