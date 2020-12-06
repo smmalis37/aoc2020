@@ -2,10 +2,12 @@ use crate::day_solver::DaySolver;
 
 pub struct Day6;
 
+type Num = u8;
+
 #[derive(Clone)]
 pub struct Group {
-    person_count: usize,
-    answers: [usize; 26],
+    person_count: Num,
+    answers: [Num; 26],
 }
 
 impl DaySolver<'_> for Day6 {
@@ -28,8 +30,8 @@ impl DaySolver<'_> for Day6 {
                 person_count = 0;
             } else {
                 person_count += 1;
-                for answer in line {
-                    answers[(*answer - b'a') as usize] += 1;
+                for &answer in line {
+                    answers[(answer - b'a') as usize] += 1;
                 }
             }
         }
@@ -52,7 +54,7 @@ impl DaySolver<'_> for Day6 {
 
 fn run<'a>(
     data: <Day6 as DaySolver>::Parsed,
-    f: impl Fn(usize, &Group) -> bool,
+    f: impl Fn(Num, &Group) -> bool,
 ) -> <Day6 as DaySolver<'a>>::Output {
     data.into_iter()
         .map(|g| g.answers.iter().filter(|&&a| f(a, &g)).count())
