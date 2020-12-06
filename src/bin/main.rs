@@ -16,7 +16,7 @@ macro_rules! day {
 
     ( $d:expr => $o1:expr, $o2:expr ) => {
         paste::expr! {
-            solve::<[<day $d>]::[<Day $d>]>($d, include_str!(concat!("../../input/2020/day", $d, ".txt")).trim(), $o1, $o2);
+            solve::<[<day $d>]::[<Day $d>]>($d, std::fs::read_to_string(concat!("input/2020/day", $d, ".txt")).unwrap().trim(), $o1, $o2);
         }
     };
 }
