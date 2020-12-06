@@ -59,8 +59,50 @@ mod tests {
     use super::*;
 
     #[test]
-    fn d6p1() {}
+    fn d6p1() {
+        assert_eq!(
+            Day6::part1(Day6::parse(
+                "abc
+
+a
+b
+c
+
+ab
+ac
+
+a
+a
+a
+a
+
+b"
+            )),
+            11
+        );
+    }
 
     #[test]
-    fn d6p2() {}
+    fn d6p2() {
+        assert_eq!(
+            Day6::part2(Day6::parse(
+                "abc
+
+a
+b
+c
+
+ab
+ac
+
+a
+a
+a
+a
+
+b"
+            )),
+            6
+        );
+    }
 }
