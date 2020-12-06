@@ -2,22 +2,27 @@ use crate::day_solver::DaySolver;
 
 pub struct Day6;
 
+type Group = Vec<Person>;
+type Person = [bool; 26];
+
 impl DaySolver<'_> for Day6 {
-    type Parsed = Vec<[bool; 26]>;
+    type Parsed = Vec<Group>;
     type Output = usize;
 
     fn parse(input: &str) -> Self::Parsed {
         let mut results = Vec::new();
-        let mut current = [false; 26];
+        let mut current = Group::new();
 
         for line in input.as_bytes().split(|&c| c == b'\n') {
             if line.is_empty() {
                 results.push(current);
-                current = [false; 26];
+                current = Group::new();
             } else {
+                let mut person = [false; 26];
                 for answer in line {
-                    current[(*answer - b'a') as usize] = true;
+                    person[(*answer - b'a') as usize] = true;
                 }
+                current.push(person);
             }
         }
 
@@ -27,12 +32,14 @@ impl DaySolver<'_> for Day6 {
 
     fn part1(data: Self::Parsed) -> Self::Output {
         data.into_iter()
-            .map(|a| a.iter().filter(|&&x| x).count())
+            .map(|g| (0..26usize).filter(|i| g.iter().any(|p| p[*i])).count())
             .sum()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        todo!()
+        data.into_iter()
+            .map(|g| (0..26usize).filter(|i| g.iter().all(|p| p[*i])).count())
+            .sum()
     }
 }
 
