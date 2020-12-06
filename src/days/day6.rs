@@ -42,16 +42,21 @@ impl DaySolver<'_> for Day6 {
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        data.into_iter()
-            .map(|g| g.answers.iter().filter(|&&a| a > 0).count())
-            .sum()
+        run(data, |a, _| a > 0)
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        data.into_iter()
-            .map(|g| g.answers.iter().filter(|&&a| a == g.person_count).count())
-            .sum()
+        run(data, |a, g| a == g.person_count)
     }
+}
+
+fn run<'a>(
+    data: <Day6 as DaySolver>::Parsed,
+    f: impl Fn(usize, &Group) -> bool,
+) -> <Day6 as DaySolver<'a>>::Output {
+    data.into_iter()
+        .map(|g| g.answers.iter().filter(|&&a| f(a, &g)).count())
+        .sum()
 }
 
 #[cfg(test)]
