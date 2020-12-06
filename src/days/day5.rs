@@ -33,15 +33,18 @@ impl<'a> DaySolver<'a> for Day5 {
         data.into_iter().max().unwrap()
     }
 
-    fn part2(mut data: Self::Parsed) -> Self::Output {
-        data.sort_unstable();
-        for i in 0..data.len() - 1 {
-            if data[i] + 1 != data[i + 1] {
-                return data[i] + 1;
-            }
+    fn part2(data: Self::Parsed) -> Self::Output {
+        let mut min = Self::Output::MAX;
+        let mut max = Self::Output::MIN;
+        let mut total = 0;
+
+        for x in data {
+            min = std::cmp::min(min, x);
+            max = std::cmp::max(max, x);
+            total ^= x;
         }
 
-        unreachable!()
+        (min..=max).fold(0, |a, x| a ^ x) ^ total
     }
 }
 
