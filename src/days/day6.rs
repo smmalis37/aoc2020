@@ -2,8 +2,11 @@ use crate::day_solver::DaySolver;
 
 pub struct Day6;
 
-type Group = Vec<Person>;
-type Person = [bool; 26];
+#[derive(Clone)]
+pub struct Group {
+    person_count: usize,
+    answers: [usize; 26],
+}
 
 impl DaySolver<'_> for Day6 {
     type Parsed = Vec<Group>;
@@ -11,34 +14,42 @@ impl DaySolver<'_> for Day6 {
 
     fn parse(input: &str) -> Self::Parsed {
         let mut results = Vec::new();
-        let mut current = Group::new();
+        let mut answers = [0; 26];
+        let mut person_count = 0;
 
         for line in input.as_bytes().split(|&c| c == b'\n') {
             if line.is_empty() {
-                results.push(current);
-                current = Group::new();
+                results.push(Group {
+                    person_count,
+                    answers,
+                });
+
+                answers = [0; 26];
+                person_count = 0;
             } else {
-                let mut person = [false; 26];
+                person_count += 1;
                 for answer in line {
-                    person[(*answer - b'a') as usize] = true;
+                    answers[(*answer - b'a') as usize] += 1;
                 }
-                current.push(person);
             }
         }
 
-        results.push(current);
+        results.push(Group {
+            person_count,
+            answers,
+        });
         results
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
         data.into_iter()
-            .map(|g| (0..26usize).filter(|i| g.iter().any(|p| p[*i])).count())
+            .map(|g| g.answers.iter().filter(|&&a| a > 0).count())
             .sum()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
         data.into_iter()
-            .map(|g| (0..26usize).filter(|i| g.iter().all(|p| p[*i])).count())
+            .map(|g| g.answers.iter().filter(|&&a| a == g.person_count).count())
             .sum()
     }
 }
