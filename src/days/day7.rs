@@ -13,12 +13,17 @@ pub struct Bag<'a> {
     color: &'a [u8],
 }
 
+const MY_BAG: Bag<'static> = Bag {
+    adjective: b"shiny",
+    color: b"gold",
+};
+
 impl<'a> DaySolver<'a> for Day7 {
-    type Parsed = DiGraphMap<Bag<'a>, usize>;
+    type Parsed = DiGraphMap<Bag<'a>, Self::Output>;
     type Output = usize;
 
     fn parse(input: &'a str) -> Self::Parsed {
-        let mut graph = DiGraphMap::new();
+        let mut graph = Self::Parsed::new();
 
         for l in input.as_bytes().split(|&x| x == b'\n') {
             let mut words = l.split(|&x| x == b' ');
@@ -29,13 +34,11 @@ impl<'a> DaySolver<'a> for Day7 {
 
             let outside = Bag { adjective, color };
 
-            loop {
-                let count_word = words.next().unwrap();
-
-                let count = if count_word == b"no" {
-                    break;
+            while let Some(count_word) = words.next() {
+                let count = if let Ok(count) = count_word.parse() {
+                    count
                 } else {
-                    count_word.parse().unwrap()
+                    break;
                 };
 
                 let adjective = words.next().unwrap();
@@ -43,10 +46,7 @@ impl<'a> DaySolver<'a> for Day7 {
                 let inside = Bag { adjective, color };
                 graph.add_edge(outside, inside, count);
 
-                let bag_word = words.next().unwrap();
-                if bag_word[bag_word.len() - 1] == b'.' {
-                    break;
-                }
+                words.next(); // bags
             }
         }
 
@@ -54,19 +54,16 @@ impl<'a> DaySolver<'a> for Day7 {
     }
 
     fn part1(graph: Self::Parsed) -> Self::Output {
-        let start = Bag {
-            adjective: b"shiny",
-            color: b"gold",
-        };
+        let mut queue = VecDeque::new();
+        queue.push_back(MY_BAG);
+
         let mut seen = HashSet::new();
 
-        let mut queue = VecDeque::new();
-        queue.push_back(start);
-
         while let Some(nx) = queue.pop_front() {
-            seen.insert(nx);
-            for n in graph.neighbors_directed(nx, Incoming) {
-                queue.push_back(n);
+            if seen.insert(nx) {
+                for n in graph.neighbors_directed(nx, Incoming) {
+                    queue.push_back(n);
+                }
             }
         }
 
@@ -74,14 +71,10 @@ impl<'a> DaySolver<'a> for Day7 {
     }
 
     fn part2(graph: Self::Parsed) -> Self::Output {
-        let start = Bag {
-            adjective: b"shiny",
-            color: b"gold",
-        };
-        let mut count = 0;
-
         let mut queue = VecDeque::new();
-        queue.push_back((start, 1));
+        queue.push_back((MY_BAG, 1));
+
+        let mut count = 0;
 
         while let Some((nx, factor)) = queue.pop_front() {
             count += factor;
@@ -99,8 +92,51 @@ mod tests {
     use super::*;
 
     #[test]
-    fn d7p1() {}
+    fn d7p1() {
+        assert_eq!(
+            Day7::part1(Day7::parse(
+                "light red bags contain 1 bright white bag, 2 muted yellow bags.
+dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+bright white bags contain 1 shiny gold bag.
+muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+faded blue bags contain no other bags.
+dotted black bags contain no other bags."
+            )),
+            4
+        );
+    }
 
     #[test]
-    fn d7p2() {}
+    fn d7p2() {
+        assert_eq!(
+            Day7::part2(Day7::parse(
+                "light red bags contain 1 bright white bag, 2 muted yellow bags.
+dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+bright white bags contain 1 shiny gold bag.
+muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+faded blue bags contain no other bags.
+dotted black bags contain no other bags."
+            )),
+            32
+        );
+
+        assert_eq!(
+            Day7::part2(Day7::parse(
+                "shiny gold bags contain 2 dark red bags.
+dark red bags contain 2 dark orange bags.
+dark orange bags contain 2 dark yellow bags.
+dark yellow bags contain 2 dark green bags.
+dark green bags contain 2 dark blue bags.
+dark blue bags contain 2 dark violet bags.
+dark violet bags contain no other bags."
+            )),
+            126
+        );
+    }
 }
