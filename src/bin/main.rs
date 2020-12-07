@@ -40,7 +40,7 @@ fn solve<'a, S: DaySolver<'a>>(
 ) {
     let mut args = std::env::args();
     if args.len() > 1 {
-        if args.any(|x| x == day_number.to_string()) {
+        if args.any(|x| x == day_number.to_string() || x == "a") {
             bench::<S>(day_number, input);
         }
     } else {
