@@ -25,20 +25,23 @@ impl<'a> DaySolver<'a> for Day7 {
     fn parse(input: &'a str) -> Self::Parsed {
         let mut graph = Self::Parsed::new();
 
-        for l in input.as_bytes().split(|&x| x == b'\n') {
-            let mut words = l.split(|&x| x == b' ');
-            let adjective = words.next().unwrap();
+        let mut words = input.as_bytes().split(|&x| x == b'\n' || x == b' ');
+        while let Some(adjective) = words.next() {
             let color = words.next().unwrap();
             words.next(); // bags
             words.next(); // contain
 
             let outside = Bag { adjective, color };
 
-            while let Some(count_word) = words.next() {
-                let count = if let Ok(count) = count_word.parse() {
-                    count
-                } else {
+            loop {
+                let count_word = words.next().unwrap();
+
+                let count = if count_word == b"no" {
+                    words.next(); // other
+                    words.next(); // bags
                     break;
+                } else {
+                    count_word.parse().unwrap()
                 };
 
                 let adjective = words.next().unwrap();
@@ -46,7 +49,10 @@ impl<'a> DaySolver<'a> for Day7 {
                 let inside = Bag { adjective, color };
                 graph.add_edge(outside, inside, count);
 
-                words.next(); // bags
+                // bags[,.]
+                if *words.next().unwrap().last().unwrap() == b'.' {
+                    break;
+                }
             }
         }
 
