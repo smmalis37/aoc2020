@@ -20,7 +20,7 @@ const MY_BAG: Bag<'static> = Bag {
 
 impl<'a> DaySolver<'a> for Day7 {
     type Parsed = DiGraphMap<Bag<'a>, Self::Output>;
-    type Output = usize;
+    type Output = u16;
 
     fn parse(input: &'a str) -> Self::Parsed {
         let mut graph = Self::Parsed::new();
@@ -73,7 +73,7 @@ impl<'a> DaySolver<'a> for Day7 {
             }
         }
 
-        seen.len() - 1
+        seen.len() as Self::Output - 1
     }
 
     fn part2(graph: Self::Parsed) -> Self::Output {

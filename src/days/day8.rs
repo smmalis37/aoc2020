@@ -4,18 +4,20 @@ use crate::day_solver::DaySolver;
 
 pub struct Day8;
 
+type N = i16;
+
 #[derive(Clone)]
 pub enum Instruction {
-    Acc(isize),
-    Jmp(isize),
-    Nop(isize),
+    Acc(N),
+    Jmp(N),
+    Nop(N),
 }
 
 use Instruction::*;
 
 impl DaySolver<'_> for Day8 {
     type Parsed = Vec<Instruction>;
-    type Output = isize;
+    type Output = N;
 
     fn parse(input: &str) -> Self::Parsed {
         let mut results = Vec::new();
@@ -54,7 +56,7 @@ impl DaySolver<'_> for Day8 {
                 Acc(_) => continue,
                 Jmp(x) if !trace[change + 1] => Nop(x),
                 Jmp(_) => continue,
-                Nop(x) if !trace[(change as isize + x) as usize] => Jmp(x),
+                Nop(x) if !trace[(change as N + x) as usize] => Jmp(x),
                 Nop(_) => continue,
             };
 
@@ -96,7 +98,7 @@ fn run<'a>(
                 acc += x;
             }
             Jmp(x) => {
-                pc = ((pc as isize) + x - 1) as usize;
+                pc = ((pc as N) + x - 1) as usize;
             }
             Nop(_) => {}
         }
