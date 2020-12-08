@@ -48,35 +48,67 @@ impl DaySolver<'_> for Day8 {
         run(&program, &mut trace);
         let trace = trace;
 
-        let mut seen_buf = vec![false; program.len()];
-        let mut change = program.len();
-
+        let mut potential_landing_spots = vec![false; program.len() + 1];
+        let mut i = program.len();
         loop {
-            change -= 1;
+            potential_landing_spots[i] = true;
+            i -= 1;
 
-            if !trace[change] {
-                continue;
+            if let Jmp(x) = program[i] {
+                if x < 0 {
+                    break;
+                }
             }
-
-            program[change] = match program[change] {
-                Acc(_) => continue,
-                Jmp(x) if !trace[change + 1] => Nop(x),
-                Jmp(_) => continue,
-                Nop(x) if !trace[(change as N + x) as usize] => Jmp(x),
-                Nop(_) => continue,
-            };
-
-            let result = run(&program, &mut seen_buf);
-            if result.0 {
-                return result.1;
-            }
-
-            program[change] = match program[change] {
-                Acc(_) => unreachable!(),
-                Jmp(x) => Nop(x),
-                Nop(x) => Jmp(x),
-            };
         }
+
+        let swap = if trace[i] {
+            //println!("Found last negative jmp.");
+            i
+        } else {
+            loop {
+                i -= 1;
+
+                if let Nop(x) = program[i] {
+                    if trace[i] && potential_landing_spots[((i as N) + x) as usize] {
+                        //println!("Found nop to jmp.");
+                        break i;
+                    }
+                } else if let Jmp(x) = program[i] {
+                    if !trace[i]
+                        && potential_landing_spots[((i as N) + x) as usize]
+                        && !potential_landing_spots[i]
+                    {
+                        let mut j = i - 1;
+                        loop {
+                            if matches!(program[j], Jmp(_)) {
+                                break;
+                            }
+                            j -= 1;
+                        }
+
+                        if trace[j] {
+                            //println!("Found jmp preceded by hit jmp.");
+                            break j;
+                        } else {
+                            //println!("Found jmp preceded by unhit jmp.");
+                            for a in j + 1..=i {
+                                potential_landing_spots[a] = true;
+                            }
+                            i = program.len();
+                        }
+                    }
+                }
+            }
+        };
+
+        program[swap] = match program[swap] {
+            Acc(_) => unreachable!(),
+            Jmp(x) => Nop(x),
+            Nop(x) => Jmp(x),
+        };
+        let res = run(&program, &mut vec![false; program.len()]);
+        assert!(res.0);
+        res.1
     }
 }
 
