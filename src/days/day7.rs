@@ -19,8 +19,8 @@ const MY_BAG: Bag<'static> = Bag {
 };
 
 impl<'a> DaySolver<'a> for Day7 {
-    type Parsed = DiGraphMap<Bag<'a>, Self::Output>;
-    type Output = u16;
+    type Parsed = DiGraphMap<Bag<'a>, u16>;
+    type Output = usize;
 
     fn parse(input: &'a str) -> Self::Parsed {
         let mut graph = Self::Parsed::new();
@@ -44,9 +44,12 @@ impl<'a> DaySolver<'a> for Day7 {
                     count_word.parse().unwrap()
                 };
 
-                let adjective = words.next().unwrap();
-                let color = words.next().unwrap();
-                let inside = Bag { adjective, color };
+                let inner_adjective = words.next().unwrap();
+                let inner_color = words.next().unwrap();
+                let inside = Bag {
+                    adjective: inner_adjective,
+                    color: inner_color,
+                };
                 graph.add_edge(outside, inside, count);
 
                 // bags[,.]
@@ -73,7 +76,7 @@ impl<'a> DaySolver<'a> for Day7 {
             }
         }
 
-        seen.len() as Self::Output - 1
+        seen.len() - 1
     }
 
     fn part2(graph: Self::Parsed) -> Self::Output {
@@ -89,7 +92,7 @@ impl<'a> DaySolver<'a> for Day7 {
             }
         }
 
-        count - 1
+        count as Self::Output - 1
     }
 }
 

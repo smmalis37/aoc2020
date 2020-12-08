@@ -13,10 +13,8 @@ impl<'a> DaySolver<'a> for Day5 {
             let mut num = 0;
             for x in line {
                 let bit = match x {
-                    b'F' => 0,
-                    b'B' => 1,
-                    b'L' => 0,
-                    b'R' => 1,
+                    b'F' | b'L' => 0,
+                    b'B' | b'R' => 1,
                     _ => unreachable!(),
                 };
 
