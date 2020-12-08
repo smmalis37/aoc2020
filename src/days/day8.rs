@@ -36,13 +36,26 @@ impl DaySolver<'_> for Day8 {
     }
 
     fn part2(mut program: Self::Parsed) -> Self::Output {
-        let mut seen_buf = vec![false; program.len()];
+        let mut trace = vec![false; program.len()];
+        run(&program, &mut trace);
+        let trace = trace;
 
-        for change in (0..program.len()).rev() {
+        let mut seen_buf = vec![false; program.len()];
+        let mut change = program.len();
+
+        loop {
+            change -= 1;
+
+            if !trace[change] {
+                continue;
+            }
+
             program[change] = match program[change] {
                 Acc(_) => continue,
-                Jmp(x) => Nop(x),
-                Nop(x) => Jmp(x),
+                Jmp(x) if !trace[change + 1] => Nop(x),
+                Jmp(_) => continue,
+                Nop(x) if !trace[(change as isize + x) as usize] => Jmp(x),
+                Nop(_) => continue,
             };
 
             let result = run(&program, &mut seen_buf);
@@ -56,8 +69,6 @@ impl DaySolver<'_> for Day8 {
                 Nop(x) => Jmp(x),
             };
         }
-
-        unreachable!()
     }
 }
 
