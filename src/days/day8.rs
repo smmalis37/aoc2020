@@ -134,14 +134,15 @@ fn run<'a>(
         match program[pc] {
             Acc(x) => {
                 acc += x;
+                pc += 1;
             }
             Jmp(x) => {
-                pc = ((pc as N) + x - 1) as usize;
+                pc = ((pc as N) + x) as usize;
             }
-            Nop(_) => {}
+            Nop(_) => {
+                pc += 1;
+            }
         }
-
-        pc += 1;
     }
 }
 
