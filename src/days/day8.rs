@@ -101,8 +101,38 @@ mod tests {
     use super::*;
 
     #[test]
-    fn d8p1() {}
+    fn d8p1() {
+        assert_eq!(
+            Day8::part1(Day8::parse(
+                "nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6"
+            )),
+            5
+        );
+    }
 
     #[test]
-    fn d8p2() {}
+    fn d8p2() {
+        assert_eq!(
+            Day8::part2(Day8::parse(
+                "nop +0
+acc +1
+jmp +4
+acc +3
+jmp -3
+acc -99
+acc +1
+jmp -4
+acc +6"
+            )),
+            8
+        );
+    }
 }
