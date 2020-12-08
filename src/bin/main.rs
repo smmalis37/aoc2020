@@ -30,6 +30,7 @@ fn main() {
     day!(5, 864, 739);
     day!(6, 6590, 3288);
     day!(7, 287, 48160);
+    day!(8, 1528, 640);
 }
 
 fn solve<'a, S: DaySolver<'a>>(
