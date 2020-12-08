@@ -40,13 +40,11 @@ impl DaySolver<'_> for Day8 {
     }
 
     fn part1(program: Self::Parsed) -> Self::Output {
-        run(&program, &mut vec![false; program.len()]).1
+        run(&program).1
     }
 
     fn part2(mut program: Self::Parsed) -> Self::Output {
-        let mut trace = vec![false; program.len()];
-        run(&program, &mut trace);
-        let trace = trace;
+        let trace = run(&program).2;
 
         let mut potential_landing_spots = vec![false; program.len() + 1];
         let mut i = program.len();
@@ -106,7 +104,7 @@ impl DaySolver<'_> for Day8 {
             Jmp(x) => Nop(x),
             Nop(x) => Jmp(x),
         };
-        let res = run(&program, &mut vec![false; program.len()]);
+        let res = run(&program);
         assert!(res.0);
         res.1
     }
@@ -114,20 +112,18 @@ impl DaySolver<'_> for Day8 {
 
 fn run<'a>(
     program: &<Day8 as DaySolver>::Parsed,
-    seen: &mut [bool],
-) -> (bool, <Day8 as DaySolver<'a>>::Output) {
-    assert_eq!(program.len(), seen.len());
-    seen.iter_mut().for_each(|x| *x = false);
+) -> (bool, <Day8 as DaySolver<'a>>::Output, Vec<bool>) {
+    let mut seen = vec![false; program.len()];
     let mut acc = 0;
     let mut pc = 0;
 
     loop {
         if pc == program.len() {
-            break (true, acc);
+            break (true, acc, seen);
         }
 
         if seen[pc] {
-            break (false, acc);
+            break (false, acc, seen);
         }
         seen[pc] = true;
 
