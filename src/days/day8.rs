@@ -32,67 +32,59 @@ impl DaySolver<'_> for Day8 {
     }
 
     fn part1(program: Self::Parsed) -> Self::Output {
-        let mut seen = vec![false; program.len()];
-        let mut acc = 0;
-        let mut pc = 0;
-
-        loop {
-            if seen[pc as usize] {
-                break acc;
-            }
-
-            seen[pc as usize] = true;
-            match program[pc as usize] {
-                Acc(x) => {
-                    acc += x;
-                }
-                Jmp(x) => {
-                    pc += x - 1;
-                }
-                Nop(_) => {}
-            }
-
-            pc += 1;
-        }
+        run(&program).1
     }
 
-    fn part2(source: Self::Parsed) -> Self::Output {
-        for change in (0..source.len()).rev() {
-            let mut test = source.clone();
-            test[change] = match test[change] {
+    fn part2(mut program: Self::Parsed) -> Self::Output {
+        for change in (0..program.len()).rev() {
+            program[change] = match program[change] {
                 Acc(_) => continue,
                 Jmp(x) => Nop(x),
                 Nop(x) => Jmp(x),
             };
 
-            let mut acc = 0;
-            let mut pc = 0;
-
-            let mut seen = vec![false; test.len()];
-            loop {
-                if pc as usize == test.len() {
-                    return acc;
-                }
-                if seen[pc as usize] {
-                    break;
-                }
-
-                seen[pc as usize] = true;
-                match test[pc as usize] {
-                    Acc(x) => {
-                        acc += x;
-                    }
-                    Jmp(x) => {
-                        pc += x - 1;
-                    }
-                    Nop(_) => {}
-                }
-
-                pc += 1;
+            let result = run(&program);
+            if result.0 {
+                return result.1;
             }
+
+            program[change] = match program[change] {
+                Acc(_) => unreachable!(),
+                Jmp(x) => Nop(x),
+                Nop(x) => Jmp(x),
+            };
         }
 
         unreachable!()
+    }
+}
+
+fn run<'a>(program: &<Day8 as DaySolver>::Parsed) -> (bool, <Day8 as DaySolver<'a>>::Output) {
+    let mut seen = vec![false; program.len() as usize];
+    let mut acc = 0;
+    let mut pc = 0;
+
+    loop {
+        if pc == program.len() {
+            break (true, acc);
+        }
+
+        if seen[pc] {
+            break (false, acc);
+        }
+        seen[pc] = true;
+
+        match program[pc] {
+            Acc(x) => {
+                acc += x;
+            }
+            Jmp(x) => {
+                pc = ((pc as isize) + x - 1) as usize;
+            }
+            Nop(_) => {}
+        }
+
+        pc += 1;
     }
 }
 
