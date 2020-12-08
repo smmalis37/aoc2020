@@ -1,7 +1,8 @@
 #![allow(
     clippy::cast_possible_truncation,
     clippy::cast_sign_loss,
-    clippy::cast_possible_wrap
+    clippy::cast_possible_wrap,
+    clippy::needless_continue
 )]
 
 use bstr_parse::BStrParse;
@@ -59,6 +60,7 @@ impl DaySolver<'_> for Day8 {
             }
         }
 
+        let start = i;
         let swap = if trace[i] {
             //println!("Found last negative jmp.");
             i
@@ -66,7 +68,9 @@ impl DaySolver<'_> for Day8 {
             loop {
                 i -= 1;
 
-                if let Nop(x) = program[i] {
+                if potential_landing_spots[i] {
+                    continue;
+                } else if let Nop(x) = program[i] {
                     if trace[i] && potential_landing_spots[((i as N) + x) as usize] {
                         //println!("Found nop to jmp.");
                         break i;
@@ -92,7 +96,7 @@ impl DaySolver<'_> for Day8 {
                             potential_landing_spots[j + 1..=i].iter_mut().for_each(|a| {
                                 *a = true;
                             });
-                            i = program.len();
+                            i = start;
                         }
                     }
                 }
