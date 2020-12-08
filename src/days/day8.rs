@@ -89,9 +89,9 @@ impl DaySolver<'_> for Day8 {
                             break j;
                         } else {
                             //println!("Found jmp preceded by unhit jmp.");
-                            for a in j + 1..=i {
-                                potential_landing_spots[a] = true;
-                            }
+                            potential_landing_spots[j + 1..=i].iter_mut().for_each(|a| {
+                                *a = true;
+                            });
                             i = program.len();
                         }
                     }
