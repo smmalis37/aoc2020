@@ -32,10 +32,12 @@ impl DaySolver<'_> for Day8 {
     }
 
     fn part1(program: Self::Parsed) -> Self::Output {
-        run(&program).1
+        run(&program, &mut vec![false; program.len()]).1
     }
 
     fn part2(mut program: Self::Parsed) -> Self::Output {
+        let mut seen_buf = vec![false; program.len()];
+
         for change in (0..program.len()).rev() {
             program[change] = match program[change] {
                 Acc(_) => continue,
@@ -43,7 +45,7 @@ impl DaySolver<'_> for Day8 {
                 Nop(x) => Jmp(x),
             };
 
-            let result = run(&program);
+            let result = run(&program, &mut seen_buf);
             if result.0 {
                 return result.1;
             }
@@ -59,8 +61,12 @@ impl DaySolver<'_> for Day8 {
     }
 }
 
-fn run<'a>(program: &<Day8 as DaySolver>::Parsed) -> (bool, <Day8 as DaySolver<'a>>::Output) {
-    let mut seen = vec![false; program.len() as usize];
+fn run<'a>(
+    program: &<Day8 as DaySolver>::Parsed,
+    seen: &mut [bool],
+) -> (bool, <Day8 as DaySolver<'a>>::Output) {
+    assert_eq!(program.len(), seen.len());
+    seen.iter_mut().for_each(|x| *x = false);
     let mut acc = 0;
     let mut pc = 0;
 
