@@ -1,6 +1,10 @@
 use aoc2020::{day_solver::DaySolver, days::*};
 use std::{cmp::PartialEq, fmt::Debug, time::Instant};
 
+#[cfg(debug_assertions)]
+#[global_allocator]
+static ALLOCATOR: dhat::DhatAlloc = dhat::DhatAlloc;
+
 macro_rules! day {
     ( $d:expr ) => {
         day!($d => None, None);
@@ -22,6 +26,9 @@ macro_rules! day {
 }
 
 fn main() {
+    #[cfg(debug_assertions)]
+    let _dhat = dhat::Dhat::start_heap_profiling();
+
     println!("AOC 2020");
     day!(1, 964875, 158661360);
     day!(2, 515, 711);
