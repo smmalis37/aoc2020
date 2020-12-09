@@ -1,5 +1,4 @@
-use crate::day_solver::DaySolver;
-use bstr_parse::*;
+use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day4;
 

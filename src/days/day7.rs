@@ -1,9 +1,8 @@
 use std::collections::{HashSet, VecDeque};
 
-use bstr_parse::BStrParse;
 use petgraph::{graphmap::DiGraphMap, EdgeDirection::*};
 
-use crate::day_solver::DaySolver;
+use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day7;
 

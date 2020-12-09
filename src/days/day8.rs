@@ -5,9 +5,7 @@
     clippy::needless_continue
 )]
 
-use bstr_parse::BStrParse;
-
-use crate::day_solver::DaySolver;
+use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day8;
 

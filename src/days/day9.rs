@@ -1,8 +1,6 @@
 use std::cmp::Ordering::*;
 
-use bstr_parse::BStrParse;
-
-use crate::day_solver::DaySolver;
+use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day9;
 
