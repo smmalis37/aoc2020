@@ -1,4 +1,4 @@
-use std::{cmp::Ordering::*, collections::VecDeque};
+use std::cmp::Ordering::*;
 
 use bstr_parse::BStrParse;
 
@@ -30,15 +30,15 @@ impl DaySolver<'_> for Day9 {
 }
 
 fn do_part_1(data: &<Day9 as DaySolver>::Parsed, size: usize) -> N {
-    let mut set: VecDeque<_> = data[0..size].iter().copied().collect();
+    for w in data.windows(size + 1) {
+        let (&value, window) = w.split_last().unwrap();
 
-    for &x in &data[size..] {
-        if !set.iter().any(|&v| x > v && set.contains(&(x - v))) {
-            return x;
+        if !window
+            .iter()
+            .any(|&v| value > v && window.contains(&(value - v)))
+        {
+            return value;
         }
-
-        set.pop_front();
-        set.push_back(x);
     }
 
     unreachable!()
