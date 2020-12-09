@@ -84,6 +84,8 @@ fn run_part<P, O: Debug + PartialEq>(
 
     if let Some(expected) = expected_output {
         assert_eq!(expected, result);
+    } else {
+        println!("Not checking input!");
     }
 }
 
