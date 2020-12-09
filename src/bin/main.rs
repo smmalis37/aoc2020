@@ -20,7 +20,7 @@ macro_rules! day {
 
     ( $d:expr => $o1:expr, $o2:expr ) => {
         paste::expr! {
-            solve::<[<day $d>]::[<Day $d>]>($d, std::fs::read_to_string(concat!("input/2020/day", $d, ".txt")).unwrap().trim(), $o1, $o2);
+            solve::<_, [<day $d>]::[<Day $d>]>($d, $o1, $o2);
         }
     };
 }
@@ -41,19 +41,21 @@ fn main() {
     day!(9, 29221323, 4389369);
 }
 
-fn solve<'a, S: DaySolver<'a>>(
+fn solve<O, S: for<'a> DaySolver<'a, Output = O>>(
     day_number: u8,
-    input: &'a str,
-    part1_output: Option<S::Output>,
-    part2_output: Option<S::Output>,
+    part1_output: Option<O>,
+    part2_output: Option<O>,
 ) {
+    let input = std::fs::read_to_string(format!("input/2020/day{}.txt", day_number)).unwrap();
+    let trimmed = input.trim();
+
     let mut args = std::env::args();
     if args.len() > 1 {
         if args.any(|x| x == day_number.to_string() || x == "a") {
-            bench::<S>(day_number, input);
+            bench::<S>(day_number, &trimmed);
         }
     } else {
-        run::<S>(day_number, input, part1_output, part2_output);
+        run::<S>(day_number, &trimmed, part1_output, part2_output);
     }
 }
 
