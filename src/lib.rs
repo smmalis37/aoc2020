@@ -2,7 +2,8 @@
 #![allow(
     clippy::wildcard_imports,
     clippy::enum_glob_use,
-    clippy::match_on_vec_items
+    clippy::match_on_vec_items,
+    clippy::missing_const_for_fn
 )]
 
 pub mod day_solver;
