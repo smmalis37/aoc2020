@@ -2,7 +2,7 @@ use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day4;
 
-#[derive(Builder, Clone)]
+#[derive(derive_builder::Builder, Clone)]
 pub struct Passport<'a> {
     birth_year: &'a [u8],
     issue_year: &'a [u8],
