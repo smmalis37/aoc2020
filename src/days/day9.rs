@@ -1,12 +1,16 @@
+use std::{cmp::Ordering::*, collections::VecDeque};
+
 use bstr_parse::BStrParse;
 
 use crate::day_solver::DaySolver;
 
 pub struct Day9;
 
+type N = u64;
+
 impl DaySolver<'_> for Day9 {
-    type Parsed = Vec<u64>;
-    type Output = u64;
+    type Parsed = Vec<N>;
+    type Output = N;
 
     fn parse(input: &str) -> Self::Parsed {
         input
@@ -17,50 +21,49 @@ impl DaySolver<'_> for Day9 {
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        let size = 25;
-        for w in data.windows(size + 1) {
-            let (&sum, values) = w.split_last().unwrap();
-
-            if values
-                .iter()
-                .any(|&v1| values.iter().any(|&v2| v1 + v2 == sum))
-            {
-                continue;
-            }
-
-            return sum;
-        }
-
-        unreachable!()
+        do_part_1(&data, 25)
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        let size = 25;
-        let (mut found, mut index) = (0, 0);
-        for (i, w) in data.windows(size + 1).enumerate() {
-            let (&sum, values) = w.split_last().unwrap();
+        do_part_2(&data, 25)
+    }
+}
 
-            if values
-                .iter()
-                .any(|&v1| values.iter().any(|&v2| v1 + v2 == sum))
-            {
-                continue;
-            }
+fn do_part_1(data: &<Day9 as DaySolver>::Parsed, size: usize) -> N {
+    let mut set: VecDeque<_> = data[0..size].iter().copied().collect();
 
-            found = sum;
-            index = i + size;
-            break;
+    for &x in &data[size..] {
+        if !set.iter().any(|&v| x > v && set.contains(&(x - v))) {
+            return x;
         }
 
-        for i in 0..index {
-            for j in i..index {
-                if data[i..=j].iter().sum::<u64>() == found {
-                    return data[i..=j].iter().min().unwrap() + data[i..=j].iter().max().unwrap();
-                }
+        set.pop_front();
+        set.push_back(x);
+    }
+
+    unreachable!()
+}
+
+fn do_part_2(data: &<Day9 as DaySolver>::Parsed, size: usize) -> N {
+    let value = do_part_1(data, size);
+
+    let (mut i, mut j) = (0, 0);
+    let mut sum = data[0];
+    loop {
+        match sum.cmp(&value) {
+            Less => {
+                j += 1;
+                sum += data[j];
+            }
+            Equal => {
+                let range = &data[i..=j];
+                break range.iter().min().unwrap() + range.iter().max().unwrap();
+            }
+            Greater => {
+                sum -= data[i];
+                i += 1;
             }
         }
-
-        todo!()
     }
 }
 
@@ -69,8 +72,66 @@ mod tests {
     use super::*;
 
     #[test]
-    fn d9p1() {}
+    fn d9p1() {
+        assert_eq!(
+            do_part_1(
+                &Day9::parse(
+                    "35
+20
+15
+25
+47
+40
+62
+55
+65
+95
+102
+117
+150
+182
+127
+219
+299
+277
+309
+576"
+                ),
+                5
+            ),
+            127
+        )
+    }
 
     #[test]
-    fn d9p2() {}
+    fn d9p2() {
+        assert_eq!(
+            do_part_2(
+                &Day9::parse(
+                    "35
+20
+15
+25
+47
+40
+62
+55
+65
+95
+102
+117
+150
+182
+127
+219
+299
+277
+309
+576"
+                ),
+                5
+            ),
+            62
+        )
+    }
 }
