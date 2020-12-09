@@ -63,10 +63,10 @@ impl<'a> DaySolver<'a> for Day7 {
     }
 
     fn part1(graph: Self::Parsed) -> Self::Output {
-        let mut queue = VecDeque::new();
+        let mut queue = VecDeque::with_capacity(graph.node_count());
         queue.push_back(MY_BAG);
 
-        let mut seen = HashSet::new();
+        let mut seen = HashSet::with_capacity(graph.node_count());
 
         while let Some(nx) = queue.pop_front() {
             if seen.insert(nx) {
@@ -80,7 +80,7 @@ impl<'a> DaySolver<'a> for Day7 {
     }
 
     fn part2(graph: Self::Parsed) -> Self::Output {
-        let mut queue = VecDeque::new();
+        let mut queue = VecDeque::with_capacity(graph.edge_count());
         queue.push_back((MY_BAG, 1));
 
         let mut count = 0;
