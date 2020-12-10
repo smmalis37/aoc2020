@@ -2,11 +2,11 @@ use crate::day_solver::DaySolver;
 
 pub struct Day5;
 
-impl<'a> DaySolver<'a> for Day5 {
+impl DaySolver<'_> for Day5 {
     type Parsed = Vec<Self::Output>;
     type Output = u16;
 
-    fn parse(input: &'a str) -> Self::Parsed {
+    fn parse(input: &str) -> Self::Parsed {
         let mut result = Vec::new();
 
         for line in input.as_bytes().split(|&x| x == b'\n') {
