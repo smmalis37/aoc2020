@@ -1,5 +1,3 @@
-use std::{convert::TryInto, num::NonZeroU64};
-
 use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day10;
@@ -34,35 +32,22 @@ impl DaySolver<'_> for Day10 {
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        i_dislike_dynamic_programming(&data, &mut vec![None; (*data.last().unwrap() + 1) as usize])
-    }
-}
+        // vec![0] is special cased and faster than non-zero. Since we only need the last spot to be 1, do this instead of vec![1].
+        let mut solutions = vec![0; data.len()];
+        *solutions.last_mut().unwrap() = 1;
 
-fn i_dislike_dynamic_programming<'a>(
-    data: &[N],
-    solutions: &mut Vec<Option<NonZeroU64>>,
-) -> <Day10 as DaySolver<'a>>::Output {
-    let (&x, data) = data.split_first().unwrap();
-
-    if let Some(sol) = solutions[x as usize] {
-        return sol.get();
-    }
-
-    if data.is_empty() {
-        return 1;
-    }
-
-    let mut sum = 0;
-
-    for i in 0..std::cmp::min(3, data.len()) {
-        if data[i] - x <= 3 {
-            sum += i_dislike_dynamic_programming(&data[i..], solutions);
+        for i in (0..data.len() - 1).rev() {
+            let mut sum = 0;
+            for j in i + 1..=std::cmp::min(i + 3, data.len() - 1) {
+                if data[j] - data[i] <= 3 {
+                    sum += solutions[j];
+                }
+            }
+            solutions[i] = sum;
         }
+
+        solutions[0]
     }
-
-    solutions[x as usize] = Some(sum.try_into().unwrap());
-
-    sum
 }
 
 #[cfg(test)]
