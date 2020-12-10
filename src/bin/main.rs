@@ -39,6 +39,7 @@ fn main() {
     day!(7, 287, 48160);
     day!(8, 1528, 640);
     day!(9, 29221323, 4389369);
+    day!(10, 2240, 99214346656768);
 }
 
 fn solve<O, S: for<'a> DaySolver<'a, Output = O>>(
