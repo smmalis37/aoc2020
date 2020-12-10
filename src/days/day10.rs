@@ -32,21 +32,21 @@ impl DaySolver<'_> for Day10 {
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        // vec![0] is special cased and faster than non-zero. Since we only need the last spot to be 1, do this instead of vec![1].
+        // vec![0] is special cased and faster than non-zero. Since we only need the first spot to be 1, do this instead of vec![1].
         let mut solutions = vec![0; data.len()];
-        *solutions.last_mut().unwrap() = 1;
+        solutions[0] = 1;
 
-        for i in (0..data.len() - 1).rev() {
+        for i in 1..data.len() {
             let mut sum = 0;
-            for j in i + 1..=std::cmp::min(i + 3, data.len() - 1) {
-                if data[j] - data[i] <= 3 {
+            for j in i.saturating_sub(3)..i {
+                if data[i] - data[j] <= 3 {
                     sum += solutions[j];
                 }
             }
             solutions[i] = sum;
         }
 
-        solutions[0]
+        *solutions.last().unwrap()
     }
 }
 
