@@ -4,8 +4,10 @@ use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day10;
 
+type N = u16;
+
 impl DaySolver<'_> for Day10 {
-    type Parsed = Vec<usize>;
+    type Parsed = Vec<N>;
     type Output = u64;
 
     fn parse(input: &str) -> Self::Parsed {
@@ -13,33 +15,37 @@ impl DaySolver<'_> for Day10 {
             .as_bytes()
             .split(|&x| x == b'\n')
             .map(|x| x.parse().unwrap())
+            .chain(std::iter::once(0))
             .collect();
         jolts.sort_unstable();
+        jolts.push(jolts.last().unwrap() + 3);
 
         jolts
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
         let mut diffs = [0; 4];
-        diffs[data[0]] += 1;
 
         for w in data.windows(2) {
-            diffs[w[1] - w[0]] += 1;
+            diffs[(w[1] - w[0]) as usize] += 1;
         }
-
-        diffs[3] += 1;
 
         diffs[1] * diffs[3]
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        recurse(0, &data, &mut HashMap::new())
+        i_dislike_dynamic_programming(&data, &mut HashMap::with_capacity(data.len()))
     }
 }
 
-fn recurse(x: usize, data: &[usize], solutions: &mut HashMap<usize, u64>) -> u64 {
-    if let Some(&v) = solutions.get(&x) {
-        return v;
+fn i_dislike_dynamic_programming<'a>(
+    data: &[N],
+    solutions: &mut HashMap<N, <Day10 as DaySolver>::Output>,
+) -> <Day10 as DaySolver<'a>>::Output {
+    let (&x, data) = data.split_first().unwrap();
+
+    if let Some(&sol) = solutions.get(&x) {
+        return sol;
     }
 
     if data.is_empty() {
@@ -48,11 +54,9 @@ fn recurse(x: usize, data: &[usize], solutions: &mut HashMap<usize, u64>) -> u64
 
     let mut sum = 0;
 
-    for i in 0..3 {
-        if i >= data.len() {
-            sum += 0;
-        } else if data[i] - x <= 3 {
-            sum += recurse(data[i], &data[i + 1..], solutions);
+    for i in 0..std::cmp::min(3, data.len()) {
+        if data[i] - x <= 3 {
+            sum += i_dislike_dynamic_programming(&data[i..], solutions);
         }
     }
 
@@ -66,8 +70,116 @@ mod tests {
     use super::*;
 
     #[test]
-    fn d10p1() {}
+    fn d10p1() {
+        assert_eq!(
+            Day10::part1(Day10::parse(
+                "16
+10
+15
+5
+1
+11
+7
+19
+6
+12
+4"
+            )),
+            7 * 5
+        );
+
+        assert_eq!(
+            Day10::part1(Day10::parse(
+                "28
+33
+18
+42
+31
+14
+46
+20
+48
+47
+24
+23
+49
+45
+19
+38
+39
+11
+1
+32
+25
+35
+8
+17
+7
+9
+4
+2
+34
+10
+3"
+            )),
+            22 * 10
+        );
+    }
 
     #[test]
-    fn d10p2() {}
+    fn d10p2() {
+        assert_eq!(
+            Day10::part2(Day10::parse(
+                "16
+10
+15
+5
+1
+11
+7
+19
+6
+12
+4"
+            )),
+            8
+        );
+
+        assert_eq!(
+            Day10::part2(Day10::parse(
+                "28
+33
+18
+42
+31
+14
+46
+20
+48
+47
+24
+23
+49
+45
+19
+38
+39
+11
+1
+32
+25
+35
+8
+17
+7
+9
+4
+2
+34
+10
+3"
+            )),
+            19208
+        );
+    }
 }
