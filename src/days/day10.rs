@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{convert::TryInto, num::NonZeroU64};
 
 use crate::{day_solver::DaySolver, util::*};
 
@@ -34,18 +34,18 @@ impl DaySolver<'_> for Day10 {
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        i_dislike_dynamic_programming(&data, &mut HashMap::with_capacity(data.len()))
+        i_dislike_dynamic_programming(&data, &mut vec![None; (*data.last().unwrap() + 1) as usize])
     }
 }
 
 fn i_dislike_dynamic_programming<'a>(
     data: &[N],
-    solutions: &mut HashMap<N, <Day10 as DaySolver>::Output>,
+    solutions: &mut Vec<Option<NonZeroU64>>,
 ) -> <Day10 as DaySolver<'a>>::Output {
     let (&x, data) = data.split_first().unwrap();
 
-    if let Some(&sol) = solutions.get(&x) {
-        return sol;
+    if let Some(sol) = solutions[x as usize] {
+        return sol.get();
     }
 
     if data.is_empty() {
@@ -60,7 +60,7 @@ fn i_dislike_dynamic_programming<'a>(
         }
     }
 
-    solutions.insert(x, sum);
+    solutions[x as usize] = Some(sum.try_into().unwrap());
 
     sum
 }
