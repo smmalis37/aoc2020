@@ -100,9 +100,7 @@ fn run<'a, Count: Default + Clone>(
     ),
     get_count: impl Fn(&Count) -> usize,
 ) -> usize {
-    let mut counts = std::iter::repeat(std::iter::repeat(Count::default()).take(data[0].len()))
-        .take(data.len())
-        .collect();
+    let mut counts = Grid::from_value(Count::default(), data[0].len(), data.len());
 
     loop {
         for i in 0..data.len() {

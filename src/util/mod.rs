@@ -54,6 +54,17 @@ impl<T> std::ops::IndexMut<usize> for Grid<T> {
     }
 }
 
+impl<T: Clone> Grid<T> {
+    #[inline]
+    pub fn from_value(value: T, line_length: usize, line_count: usize) -> Self {
+        Self {
+            line_length,
+            line_count,
+            data: vec![value; line_length * line_count],
+        }
+    }
+}
+
 impl<T> Grid<T> {
     #[inline]
     pub fn get(&self, i: usize) -> Option<&[T]> {
