@@ -7,24 +7,23 @@ impl DaySolver<'_> for Day5 {
     type Output = u16;
 
     fn parse(input: &str) -> Self::Parsed {
-        let mut result = Vec::new();
+        input
+            .as_bytes()
+            .split(|&x| x == b'\n')
+            .map(|line| {
+                let mut num = 0;
+                for x in line {
+                    let bit = match x {
+                        b'F' | b'L' => 0,
+                        b'B' | b'R' => 1,
+                        _ => unreachable!(),
+                    };
 
-        for line in input.as_bytes().split(|&x| x == b'\n') {
-            let mut num = 0;
-            for x in line {
-                let bit = match x {
-                    b'F' | b'L' => 0,
-                    b'B' | b'R' => 1,
-                    _ => unreachable!(),
-                };
-
-                num = (num << 1) + bit;
-            }
-
-            result.push(num)
-        }
-
-        result
+                    num = (num << 1) + bit;
+                }
+                num
+            })
+            .collect()
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {

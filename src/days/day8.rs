@@ -25,17 +25,19 @@ impl DaySolver<'_> for Day8 {
     type Output = N;
 
     fn parse(input: &str) -> Self::Parsed {
-        let mut results = Vec::new();
-        for l in input.as_bytes().split(|&x| x == b'\n') {
-            let num = l[4..].parse().unwrap();
-            results.push(match &l[0..3] {
-                b"acc" => Acc(num),
-                b"jmp" => Jmp(num),
-                b"nop" => Nop(num),
-                _ => unreachable!(),
-            });
-        }
-        results
+        input
+            .as_bytes()
+            .split(|&x| x == b'\n')
+            .map(|l| {
+                let num = l[4..].parse().unwrap();
+                match &l[0..3] {
+                    b"acc" => Acc(num),
+                    b"jmp" => Jmp(num),
+                    b"nop" => Nop(num),
+                    _ => unreachable!(),
+                }
+            })
+            .collect()
     }
 
     fn part1(program: Self::Parsed) -> Self::Output {
