@@ -17,7 +17,7 @@ pub enum Position {
 
 use Position::*;
 
-static ADJUSTS: [(isize, isize); 8] = [
+const ADJUSTS: [(isize, isize); 8] = [
     (-1, -1),
     (-1, 0),
     (-1, 1),
