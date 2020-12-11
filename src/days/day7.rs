@@ -1,12 +1,12 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 
-use petgraph::{graphmap::DiGraphMap, EdgeDirection::*};
+use petgraph::{graph::NodeIndex, visit::EdgeRef, EdgeDirection::*, Graph};
 
 use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day7;
 
-#[derive(Copy, Clone, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Copy, Clone, Eq, Hash, PartialEq)]
 pub struct Bag<'a> {
     adjective: &'a [u8],
     color: &'a [u8],
@@ -18,26 +18,36 @@ const MY_BAG: Bag<'static> = Bag {
 };
 
 impl<'a> DaySolver<'a> for Day7 {
-    type Parsed = DiGraphMap<Bag<'a>, u16>;
+    type Parsed = (Graph<Bag<'a>, u16>, NodeIndex);
     type Output = usize;
 
     fn parse(input: &'a str) -> Self::Parsed {
-        let mut graph = Self::Parsed::new();
+        let mut graph = Graph::new();
+        let mut indexes = HashMap::new();
+        let mut my_bag = NodeIndex::end();
 
         let mut words = input.as_bytes().split(|&x| x == b'\n' || x == b' ');
+
         while let Some(adjective) = words.next() {
             let color = words.next().unwrap();
-            words.next(); // bags
-            words.next(); // contain
 
-            let outside = Bag { adjective, color };
+            let outside_bag = Bag { adjective, color };
+            let outside = *indexes
+                .entry(outside_bag)
+                .or_insert_with(|| graph.add_node(outside_bag));
+
+            if outside_bag == MY_BAG {
+                my_bag = outside;
+            }
+
+            // skip "bags contain"
+            words.nth(1);
 
             loop {
                 let count_word = words.next().unwrap();
 
                 let count = if count_word == b"no" {
-                    words.next(); // other
-                    words.next(); // bags
+                    words.nth(1); // skip "other bags."
                     break;
                 } else {
                     count_word.parse().unwrap()
@@ -45,10 +55,14 @@ impl<'a> DaySolver<'a> for Day7 {
 
                 let inner_adjective = words.next().unwrap();
                 let inner_color = words.next().unwrap();
-                let inside = Bag {
+                let inside_bag = Bag {
                     adjective: inner_adjective,
                     color: inner_color,
                 };
+                let inside = *indexes
+                    .entry(inside_bag)
+                    .or_insert_with(|| graph.add_node(inside_bag));
+
                 graph.add_edge(outside, inside, count);
 
                 // bags[,.]
@@ -58,12 +72,12 @@ impl<'a> DaySolver<'a> for Day7 {
             }
         }
 
-        graph
+        (graph, my_bag)
     }
 
-    fn part1(graph: Self::Parsed) -> Self::Output {
+    fn part1((graph, my_bag): Self::Parsed) -> Self::Output {
         let mut queue = VecDeque::with_capacity(graph.node_count());
-        queue.push_back(MY_BAG);
+        queue.push_back(my_bag);
 
         let mut seen = HashSet::with_capacity(graph.node_count());
 
@@ -78,16 +92,16 @@ impl<'a> DaySolver<'a> for Day7 {
         seen.len() - 1
     }
 
-    fn part2(graph: Self::Parsed) -> Self::Output {
+    fn part2((graph, my_bag): Self::Parsed) -> Self::Output {
         let mut queue = VecDeque::with_capacity(graph.edge_count());
-        queue.push_back((MY_BAG, 1));
+        queue.push_back((my_bag, 1));
 
         let mut count = 0;
 
         while let Some((nx, factor)) = queue.pop_front() {
             count += factor;
-            for (_, n, e) in graph.edges(nx) {
-                queue.push_back((n, factor * e));
+            for er in graph.edges(nx) {
+                queue.push_back((er.target(), factor * er.weight()));
             }
         }
 
