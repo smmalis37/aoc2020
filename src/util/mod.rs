@@ -92,12 +92,27 @@ impl<T> Grid<T> {
     }
 
     #[inline]
+    pub fn flat_iter(&self) -> impl Iterator<Item = &'_ T> {
+        self.data.iter()
+    }
+
+    #[inline]
     pub fn iter_mut(&mut self) -> impl Iterator<Item = &'_ mut [T]> {
         self.data.chunks_exact_mut(self.line_length)
     }
 
     #[inline]
+    pub fn flat_iter_mut(&mut self) -> impl Iterator<Item = &'_ mut T> {
+        self.data.iter_mut()
+    }
+
+    #[inline]
     pub fn len(&self) -> usize {
         self.line_count
+    }
+
+    #[inline]
+    pub fn line_length(&self) -> usize {
+        self.line_length
     }
 }

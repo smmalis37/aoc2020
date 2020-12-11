@@ -30,7 +30,7 @@ fn run_slope<'a>(
     map: &<Day3 as DaySolver>::Parsed,
     (y_count, x_count): (usize, usize),
 ) -> <Day3 as DaySolver<'a>>::Output {
-    let line_length = map[0].len();
+    let line_length = map.line_length();
     map.iter()
         .step_by(y_count)
         .enumerate()
