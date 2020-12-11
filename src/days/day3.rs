@@ -2,20 +2,16 @@ use crate::day_solver::DaySolver;
 
 pub struct Day3;
 
-impl<'a> DaySolver<'a> for Day3 {
-    type Parsed = (&'a [u8], usize);
+impl DaySolver<'_> for Day3 {
+    type Parsed = Vec<Vec<bool>>;
     type Output = u64;
 
-    fn parse(input: &'a str) -> Self::Parsed {
-        (
-            input.as_bytes(),
-            input
-                .as_bytes()
-                .split(|&x| x == b'\n')
-                .next()
-                .unwrap()
-                .len(),
-        )
+    fn parse(input: &str) -> Self::Parsed {
+        input
+            .as_bytes()
+            .split(|&x| x == b'\n')
+            .map(|x| x.iter().map(|&c| (c == b'#')).collect())
+            .collect()
     }
 
     fn part1(map: Self::Parsed) -> Self::Output {
@@ -34,23 +30,12 @@ fn run_slope<'a>(
     map: &<Day3 as DaySolver>::Parsed,
     (y_count, x_count): (usize, usize),
 ) -> <Day3 as DaySolver<'a>>::Output {
-    let real_line_length = map.1;
-    let math_line_length = real_line_length + 1; // newlines
-    let grid = &map.0;
-
-    let mut y_pos = 0;
-    let mut x_pos = 0;
-    let mut count = 0;
-
-    while y_pos * math_line_length < grid.len() {
-        if grid[y_pos * math_line_length + x_pos] == b'#' {
-            count += 1;
-        }
-        y_pos += y_count;
-        x_pos = (x_pos + x_count) % real_line_length;
-    }
-
-    count
+    let line_length = map[0].len();
+    map.iter()
+        .step_by(y_count)
+        .enumerate()
+        .filter(|(i, y)| y[i * x_count % line_length])
+        .count() as <Day3 as DaySolver<'_>>::Output
 }
 
 #[cfg(test)]
