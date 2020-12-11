@@ -3,7 +3,8 @@
     clippy::wildcard_imports,
     clippy::enum_glob_use,
     clippy::match_on_vec_items,
-    clippy::missing_const_for_fn
+    clippy::missing_const_for_fn,
+    clippy::needless_range_loop
 )]
 
 pub mod day_solver;
