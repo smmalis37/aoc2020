@@ -4,8 +4,6 @@
     clippy::cast_possible_wrap
 )]
 
-use std::collections::HashSet;
-
 use crate::day_solver::DaySolver;
 
 pub struct Day11;
@@ -51,117 +49,103 @@ impl DaySolver<'_> for Day11 {
             .collect()
     }
 
-    fn part1(mut data: Self::Parsed) -> Self::Output {
-        let mut next = data.clone();
-        let mut counts = vec![vec![0_u8; data[0].len()]; data.len()];
-
-        loop {
-            for i in 0..data.len() {
-                for j in 0..data[i].len() {
-                    if matches!(data[i][j], Occupied) {
-                        for &(x, y) in &ADJUSTS {
-                            if let Some(c) = counts
-                                .get_mut((i as isize + x) as usize)
-                                .and_then(|row| row.get_mut((j as isize + y) as usize))
-                            {
-                                *c += 1;
-                            }
-                        }
-                    }
+    fn part1(data: Self::Parsed) -> Self::Output {
+        run(
+            data,
+            4,
+            |counts, _, i, j, x, y, _| {
+                if let Some(c) = counts
+                    .get_mut((i as isize + x) as usize)
+                    .and_then(|row| row.get_mut((j as isize + y) as usize))
+                {
+                    *c += 1;
                 }
-            }
-
-            let mut change = false;
-            for i in 0..data.len() {
-                for j in 0..data[i].len() {
-                    next[i][j] = match data[i][j] {
-                        Empty if counts[i][j] == 0 => {
-                            change = true;
-                            Occupied
-                        }
-                        Occupied if counts[i][j] >= 4 => {
-                            change = true;
-                            Empty
-                        }
-                        _ => data[i][j],
-                    }
-                }
-            }
-
-            if !change {
-                break data
-                    .into_iter()
-                    .flatten()
-                    .filter(|x| matches!(x, Occupied))
-                    .count();
-            }
-
-            counts.iter_mut().flatten().for_each(|x| *x = 0);
-            data.iter_mut()
-                .flatten()
-                .zip(next.iter_mut().flatten())
-                .for_each(|(d, n)| *d = *n);
-        }
+            },
+            |c: &u8| *c as usize,
+        )
     }
 
-    fn part2(mut data: Self::Parsed) -> Self::Output {
-        let mut next = data.clone();
-        let mut counts = vec![vec![HashSet::with_capacity(8); data[0].len()]; data.len()];
+    fn part2(data: Self::Parsed) -> Self::Output {
+        run(
+            data,
+            5,
+            |counts: &mut Vec<Vec<[bool; 8]>>, data, i, j, x, y, a| {
+                let mut ix = (i as isize + x) as usize;
+                let mut jy = (j as isize + y) as usize;
 
-        loop {
-            for i in 0..data.len() {
-                for j in 0..data[i].len() {
-                    if matches!(data[i][j], Occupied) {
-                        for &(x, y) in &ADJUSTS {
-                            let mut mult = 1;
-                            let mut ix = (i as isize + (x * mult)) as usize;
-                            let mut jy = (j as isize + (y * mult)) as usize;
-                            while let Some(d) = data.get_mut(ix).and_then(|row| row.get_mut(jy)) {
-                                if !matches!(d, Floor) {
-                                    counts[ix][jy].insert((x, y));
-                                    break;
-                                }
+                while let Some(d) = data.get(ix).and_then(|row| row.get(jy)) {
+                    if !matches!(d, Floor) {
+                        counts[ix][jy][a] = true;
+                        break;
+                    }
 
-                                mult += 1;
-                                ix = (i as isize + (x * mult)) as usize;
-                                jy = (j as isize + (y * mult)) as usize;
-                            }
-                        }
+                    ix = (ix as isize + x) as usize;
+                    jy = (jy as isize + y) as usize;
+                }
+            },
+            |c| c.iter().filter(|&&x| x).count(),
+        )
+    }
+}
+
+fn run<'a, Count: Default + Clone>(
+    mut data: <Day11 as DaySolver>::Parsed,
+    occupied_count: usize,
+    adjuster: impl Fn(
+        &mut Vec<Vec<Count>>,
+        &<Day11 as DaySolver<'a>>::Parsed,
+        usize,
+        usize,
+        isize,
+        isize,
+        usize,
+    ),
+    get_count: impl Fn(&Count) -> usize,
+) -> usize {
+    let mut counts = vec![vec![Count::default(); data[0].len()]; data.len()];
+
+    loop {
+        for i in 0..data.len() {
+            for j in 0..data[i].len() {
+                if matches!(data[i][j], Occupied) {
+                    for (a, &(x, y)) in ADJUSTS.iter().enumerate() {
+                        adjuster(&mut counts, &data, i, j, x, y, a);
                     }
                 }
             }
-
-            let mut change = false;
-            for i in 0..data.len() {
-                for j in 0..data[i].len() {
-                    next[i][j] = match data[i][j] {
-                        Empty if counts[i][j].is_empty() => {
-                            change = true;
-                            Occupied
-                        }
-                        Occupied if counts[i][j].len() >= 5 => {
-                            change = true;
-                            Empty
-                        }
-                        _ => data[i][j],
-                    }
-                }
-            }
-
-            if !change {
-                break data
-                    .into_iter()
-                    .flatten()
-                    .filter(|x| matches!(x, Occupied))
-                    .count();
-            }
-
-            counts.iter_mut().flatten().for_each(HashSet::clear);
-            data.iter_mut()
-                .flatten()
-                .zip(next.iter_mut().flatten())
-                .for_each(|(d, n)| *d = *n);
         }
+
+        let mut change = false;
+        data.iter_mut()
+            .flatten()
+            .zip(counts.iter().flatten())
+            .for_each(|(d, c)| {
+                let c = get_count(c);
+                *d = match d {
+                    Empty if c == 0 => {
+                        change = true;
+                        Occupied
+                    }
+                    Occupied if c >= occupied_count => {
+                        change = true;
+                        Empty
+                    }
+                    _ => *d,
+                }
+            });
+
+        if !change {
+            break data
+                .into_iter()
+                .flatten()
+                .filter(|x| matches!(x, Occupied))
+                .count();
+        }
+
+        counts
+            .iter_mut()
+            .flatten()
+            .for_each(|c| *c = Count::default());
     }
 }
 
