@@ -4,7 +4,7 @@
     clippy::cast_possible_wrap
 )]
 
-use crate::day_solver::DaySolver;
+use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day11;
 
@@ -29,7 +29,7 @@ static ADJUSTS: [(isize, isize); 8] = [
 ];
 
 impl DaySolver<'_> for Day11 {
-    type Parsed = Vec<Vec<Position>>;
+    type Parsed = Grid<Position>;
     type Output = usize;
 
     fn parse(input: &str) -> Self::Parsed {
@@ -37,14 +37,12 @@ impl DaySolver<'_> for Day11 {
             .as_bytes()
             .split(|&x| x == b'\n')
             .map(|l| {
-                l.iter()
-                    .map(|c| match c {
-                        b'.' => Floor,
-                        b'L' => Empty,
-                        b'#' => Occupied,
-                        _ => unreachable!(),
-                    })
-                    .collect()
+                l.iter().map(|c| match c {
+                    b'.' => Floor,
+                    b'L' => Empty,
+                    b'#' => Occupied,
+                    _ => unreachable!(),
+                })
             })
             .collect()
     }
@@ -69,7 +67,7 @@ impl DaySolver<'_> for Day11 {
         run(
             data,
             5,
-            |counts: &mut Vec<Vec<[bool; 8]>>, data, i, j, x, y, a| {
+            |counts: &mut Grid<[bool; 8]>, data, i, j, x, y, a| {
                 let mut ix = (i as isize + x) as usize;
                 let mut jy = (j as isize + y) as usize;
 
@@ -92,7 +90,7 @@ fn run<'a, Count: Default + Clone>(
     mut data: <Day11 as DaySolver>::Parsed,
     occupied_count: usize,
     adjuster: impl Fn(
-        &mut Vec<Vec<Count>>,
+        &mut Grid<Count>,
         &<Day11 as DaySolver<'a>>::Parsed,
         usize,
         usize,
@@ -102,7 +100,9 @@ fn run<'a, Count: Default + Clone>(
     ),
     get_count: impl Fn(&Count) -> usize,
 ) -> usize {
-    let mut counts = vec![vec![Count::default(); data[0].len()]; data.len()];
+    let mut counts = std::iter::repeat(std::iter::repeat(Count::default()).take(data[0].len()))
+        .take(data.len())
+        .collect();
 
     loop {
         for i in 0..data.len() {
@@ -136,7 +136,7 @@ fn run<'a, Count: Default + Clone>(
 
         if !change {
             break data
-                .into_iter()
+                .iter()
                 .flatten()
                 .filter(|x| matches!(x, Occupied))
                 .count();

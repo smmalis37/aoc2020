@@ -1,16 +1,16 @@
-use crate::day_solver::DaySolver;
+use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day3;
 
 impl DaySolver<'_> for Day3 {
-    type Parsed = Vec<Vec<bool>>;
+    type Parsed = Grid<bool>;
     type Output = u64;
 
     fn parse(input: &str) -> Self::Parsed {
         input
             .as_bytes()
             .split(|&x| x == b'\n')
-            .map(|x| x.iter().map(|&c| (c == b'#')).collect())
+            .map(|x| x.iter().map(|&c| (c == b'#')))
             .collect()
     }
 
