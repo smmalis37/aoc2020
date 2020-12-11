@@ -4,6 +4,7 @@ pub struct Day6;
 
 type N = u8;
 
+// TODO: Figure out why deriving copy messes with timings here so much.
 #[derive(Clone)]
 pub struct Group {
     person_count: N,

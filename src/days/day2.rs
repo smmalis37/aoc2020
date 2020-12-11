@@ -4,7 +4,7 @@ use crate::day_solver::DaySolver;
 
 pub struct Day2;
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct Password<'a> {
     num1: usize,
     num2: usize,

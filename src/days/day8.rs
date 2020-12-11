@@ -11,7 +11,7 @@ pub struct Day8;
 
 type N = i16;
 
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub enum Instruction {
     Acc(N),
     Jmp(N),

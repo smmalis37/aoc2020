@@ -8,7 +8,7 @@ use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day11;
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone)]
 pub enum Position {
     Floor,
     Empty,
