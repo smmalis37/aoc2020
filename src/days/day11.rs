@@ -38,7 +38,7 @@ impl DaySolver<'_> for Day11 {
         let neighbors = neighbors_loop(&data, |i, j, x, y, n| {
             let ix = (i as isize + x) as usize;
             let jy = (j as isize + y) as usize;
-            if (0..data.len()).contains(&ix) && (0..data.line_length()).contains(&jy) {
+            if data.get(ix).and_then(|r| r.get(jy)).is_some() {
                 n.push((ix, jy));
             }
         });
@@ -51,8 +51,8 @@ impl DaySolver<'_> for Day11 {
             let mut ix = (i as isize + x) as usize;
             let mut jy = (j as isize + y) as usize;
 
-            while (0..data.len()).contains(&ix) && (0..data.line_length()).contains(&jy) {
-                if !matches!(data[ix][jy], Floor) {
+            while let Some(d) = data.get(ix).and_then(|r| r.get(jy)) {
+                if !matches!(d, Floor) {
                     n.push((ix, jy));
                     break;
                 }
