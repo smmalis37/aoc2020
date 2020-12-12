@@ -15,18 +15,21 @@ pub struct Grid<T> {
     line_count: usize,
 }
 
-impl<T, I2: Iterator<Item = T>> std::iter::FromIterator<I2> for Grid<T> {
+impl<T, I2: ExactSizeIterator<Item = T>> std::iter::FromIterator<I2> for Grid<T> {
     #[inline]
     fn from_iter<I: IntoIterator<Item = I2>>(iter: I) -> Self {
-        let mut iter = iter.into_iter();
+        let mut iter = iter.into_iter().peekable();
 
         let (low, high) = iter.size_hint();
         let mut data = Vec::with_capacity(high.map_or(low, |x| x));
 
-        data.extend(iter.next().unwrap());
-        let line_length = data.len();
+        let line_length = iter.peek().unwrap().len();
 
-        data.extend(iter.flatten());
+        // This is significantly faster than data.extend(i.flatten()). Dunno why.
+        for i in iter {
+            data.extend(i);
+        }
+
         debug_assert!(data.len() % line_length == 0);
         let line_count = data.len() / line_length;
 
