@@ -21,22 +21,24 @@ pub enum Direction {
     West,
 }
 
+type N = i32;
+
 #[derive(Copy, Clone)]
 pub struct Move {
-    direction: Order,
-    count: i32,
+    order: Order,
+    count: N,
 }
 
 impl DaySolver<'_> for Day12 {
     type Parsed = Vec<Move>;
-    type Output = i32;
+    type Output = N;
 
     fn parse(input: &str) -> Self::Parsed {
         input
             .as_bytes()
             .split(|&x| x == b'\n')
             .map(|l| Move {
-                direction: match l[0] {
+                order: match l[0] {
                     b'N' => Order::North,
                     b'S' => Order::South,
                     b'E' => Order::East,
@@ -57,7 +59,7 @@ impl DaySolver<'_> for Day12 {
         let mut y = 0;
 
         for m in data {
-            match (current_direction, m.direction) {
+            match (current_direction, m.order) {
                 (Direction::North, Order::Forward) | (_, Order::North) => y += m.count,
                 (Direction::South, Order::Forward) | (_, Order::South) => y -= m.count,
                 (Direction::East, Order::Forward) | (_, Order::East) => x += m.count,
@@ -95,7 +97,7 @@ impl DaySolver<'_> for Day12 {
         let mut waypoint_y = 1;
 
         for m in data {
-            match m.direction {
+            match m.order {
                 Order::North => waypoint_y += m.count,
                 Order::South => waypoint_y -= m.count,
                 Order::East => waypoint_x += m.count,
@@ -130,8 +132,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn d12p1() {}
+    fn d12p1() {
+        assert_eq!(
+            Day12::part1(Day12::parse(
+                "F10
+N3
+F7
+R90
+F11"
+            )),
+            25
+        );
+    }
 
     #[test]
-    fn d12p2() {}
+    fn d12p2() {
+        assert_eq!(
+            Day12::part2(Day12::parse(
+                "F10
+N3
+F7
+R90
+F11"
+            )),
+            286
+        );
+    }
 }
