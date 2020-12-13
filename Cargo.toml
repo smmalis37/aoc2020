@@ -14,3 +14,4 @@ derive_builder = { git = "https://github.com/colin-kiegel/rust-derive-builder", 
 lexical = "5.2"
 petgraph = "0.5"
 arrayvec = "0.5.2"
+memchr = "2.3"
