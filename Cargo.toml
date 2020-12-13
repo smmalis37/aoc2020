@@ -7,7 +7,7 @@ edition = "2018"
 [dependencies]
 paste = "1"
 criterion = "0.3"
-dhat = "0.1"
+dhat = "0.2"
 serde_scan = "0.4.1"
 bytecount = "0.6"
 derive_builder = { git = "https://github.com/colin-kiegel/rust-derive-builder", rev = "9e6bf5c7a3d4728dea86931661eef83bdf6d2a61" }
