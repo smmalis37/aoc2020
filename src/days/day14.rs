@@ -13,15 +13,19 @@ pub enum Op {
 use Op::*;
 
 impl DaySolver<'_> for Day14 {
-    type Parsed = Vec<Op>;
+    type Parsed = (Vec<Op>, usize);
     type Output = u64;
 
     fn parse(input: &str) -> Self::Parsed {
-        input
+        let mut x_count = 0;
+        let mut assign_count = 0;
+        let mut mask_count = 0;
+        let res = input
             .as_bytes()
             .split(|&x| x == b'\n')
             .map(|line| match &line[0..4] {
                 b"mask" => {
+                    mask_count += 1;
                     let mut or_mask = 0;
                     let mut and_mask = u64::MAX;
                     let mut x_mask = 0;
@@ -42,6 +46,7 @@ impl DaySolver<'_> for Day14 {
                                 or_mask <<= 1;
                                 and_mask = (and_mask << 1) + 1;
                                 x_mask = (x_mask << 1) + 1;
+                                x_count += 1;
                             }
                             _ => unreachable!(),
                         }
@@ -49,6 +54,7 @@ impl DaySolver<'_> for Day14 {
                     Mask(or_mask, and_mask, x_mask)
                 }
                 b"mem[" => {
+                    assign_count += 1;
                     let close_bracket = line.iter().position(|&x| x == b']').unwrap();
                     let index = line[4..close_bracket].parse().unwrap();
                     let num = line[close_bracket + 4..].parse().unwrap();
@@ -56,10 +62,12 @@ impl DaySolver<'_> for Day14 {
                 }
                 _ => unreachable!(),
             })
-            .collect()
+            .collect();
+        let part2_size = assign_count * 2_usize.pow((x_count / mask_count) + 1);
+        (res, part2_size)
     }
 
-    fn part1(data: Self::Parsed) -> Self::Output {
+    fn part1((data, _): Self::Parsed) -> Self::Output {
         let mut current_or_mask = 0;
         let mut current_and_mask = u64::MAX;
         let mut memory = FxHashMap::with_capacity_and_hasher(data.len(), Default::default());
@@ -79,11 +87,10 @@ impl DaySolver<'_> for Day14 {
         memory.values().sum()
     }
 
-    fn part2(data: Self::Parsed) -> Self::Output {
+    fn part2((data, size): Self::Parsed) -> Self::Output {
         let mut current_or_mask = 0;
         let mut current_x_mask = 0;
-        let mut memory =
-            FxHashMap::with_capacity_and_hasher(data.len() * (2_usize.pow(7)), Default::default());
+        let mut memory = FxHashMap::with_capacity_and_hasher(size, Default::default());
 
         for x in data {
             match x {
