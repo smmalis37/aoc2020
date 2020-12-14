@@ -1,4 +1,6 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::VecDeque;
+
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use petgraph::{graph::NodeIndex, visit::EdgeRef, EdgeDirection::*, Graph};
 
@@ -23,7 +25,7 @@ impl<'a> DaySolver<'a> for Day7 {
 
     fn parse(input: &'a str) -> Self::Parsed {
         let mut graph = Graph::new();
-        let mut indexes = HashMap::new();
+        let mut indexes = FxHashMap::default();
         let mut my_bag = NodeIndex::end();
 
         let mut words = input.as_bytes().split(|&x| x == b'\n' || x == b' ');
@@ -79,7 +81,7 @@ impl<'a> DaySolver<'a> for Day7 {
         let mut queue = VecDeque::with_capacity(graph.node_count());
         queue.push_back(my_bag);
 
-        let mut seen = HashSet::with_capacity(graph.node_count());
+        let mut seen = FxHashSet::with_capacity_and_hasher(graph.node_count(), Default::default());
 
         while let Some(nx) = queue.pop_front() {
             if seen.insert(nx) {

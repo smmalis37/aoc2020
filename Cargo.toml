@@ -13,5 +13,6 @@ bytecount = "0.6"
 derive_builder = { git = "https://github.com/colin-kiegel/rust-derive-builder", rev = "9e6bf5c7a3d4728dea86931661eef83bdf6d2a61" }
 lexical = "5.2"
 petgraph = "0.5"
-arrayvec = "0.5.2"
+arrayvec = "0.5"
 memchr = "2.3"
+rustc-hash = "1.1"

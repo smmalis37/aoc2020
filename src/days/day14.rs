@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use rustc_hash::FxHashMap;
 
 use crate::{day_solver::DaySolver, util::*};
 
@@ -62,7 +62,7 @@ impl DaySolver<'_> for Day14 {
     fn part1(data: Self::Parsed) -> Self::Output {
         let mut current_or_mask = 0;
         let mut current_and_mask = u64::MAX;
-        let mut memory = HashMap::with_capacity(data.len());
+        let mut memory = FxHashMap::with_capacity_and_hasher(data.len(), Default::default());
 
         for x in data {
             match x {
@@ -82,7 +82,8 @@ impl DaySolver<'_> for Day14 {
     fn part2(data: Self::Parsed) -> Self::Output {
         let mut current_or_mask = 0;
         let mut current_x_mask = 0;
-        let mut memory = HashMap::new();
+        let mut memory =
+            FxHashMap::with_capacity_and_hasher(data.len() * (2_usize.pow(7)), Default::default());
 
         for x in data {
             match x {

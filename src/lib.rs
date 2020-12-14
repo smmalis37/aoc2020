@@ -4,7 +4,8 @@
     clippy::enum_glob_use,
     clippy::match_on_vec_items,
     clippy::missing_const_for_fn,
-    clippy::needless_range_loop
+    clippy::needless_range_loop,
+    clippy::default_trait_access
 )]
 
 pub mod day_solver;
