@@ -29,17 +29,17 @@ impl DaySolver<'_> for Day14 {
                     for bit in &line[7..] {
                         match bit {
                             b'0' => {
-                                or_mask = or_mask << 1;
-                                and_mask = and_mask << 1;
-                                x_mask = x_mask << 1;
+                                or_mask <<= 1;
+                                and_mask <<= 1;
+                                x_mask <<= 1;
                             }
                             b'1' => {
                                 or_mask = (or_mask << 1) + 1;
                                 and_mask = (and_mask << 1) + 1;
-                                x_mask = x_mask << 1;
+                                x_mask <<= 1;
                             }
                             b'X' => {
-                                or_mask = or_mask << 1;
+                                or_mask <<= 1;
                                 and_mask = (and_mask << 1) + 1;
                                 x_mask = (x_mask << 1) + 1;
                             }
