@@ -6,8 +6,8 @@ pub struct Day14;
 
 #[derive(Copy, Clone)]
 pub enum Op {
-    Mask(u64, u64),
-    Assign(usize, u64),
+    Mask(u64, u64, u64),
+    Assign(u64, u64),
 }
 
 use Op::*;
@@ -24,25 +24,29 @@ impl DaySolver<'_> for Day14 {
                 b"mask" => {
                     let mut or_mask = 0;
                     let mut and_mask = u64::MAX;
+                    let mut x_mask = 0;
 
                     for bit in &line[7..] {
                         match bit {
                             b'0' => {
                                 or_mask = or_mask << 1;
                                 and_mask = and_mask << 1;
+                                x_mask = x_mask << 1;
                             }
                             b'1' => {
                                 or_mask = (or_mask << 1) + 1;
                                 and_mask = (and_mask << 1) + 1;
+                                x_mask = x_mask << 1;
                             }
                             b'X' => {
                                 or_mask = or_mask << 1;
                                 and_mask = (and_mask << 1) + 1;
+                                x_mask = (x_mask << 1) + 1;
                             }
                             _ => unreachable!(),
                         }
                     }
-                    Mask(or_mask, and_mask)
+                    Mask(or_mask, and_mask, x_mask)
                 }
                 b"mem[" => {
                     let close_bracket = line.iter().position(|&x| x == b']').unwrap();
@@ -58,11 +62,11 @@ impl DaySolver<'_> for Day14 {
     fn part1(data: Self::Parsed) -> Self::Output {
         let mut current_or_mask = 0;
         let mut current_and_mask = u64::MAX;
-        let mut memory = HashMap::new();
+        let mut memory = HashMap::with_capacity(data.len());
 
         for x in data {
             match x {
-                Mask(or_mask, and_mask) => {
+                Mask(or_mask, and_mask, _) => {
                     current_or_mask = or_mask;
                     current_and_mask = and_mask;
                 }
@@ -76,7 +80,29 @@ impl DaySolver<'_> for Day14 {
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        todo!()
+        let mut current_or_mask = 0;
+        let mut current_x_mask = 0;
+        let mut memory = HashMap::new();
+
+        for x in data {
+            match x {
+                Mask(or_mask, _, x_mask) => {
+                    current_or_mask = or_mask;
+                    current_x_mask = x_mask;
+                }
+                Assign(index, num) => {
+                    let index = index | current_or_mask;
+                    let mut xor = current_x_mask + 1;
+
+                    for _ in 0..2_u16.pow(current_x_mask.count_ones()) {
+                        xor = (xor - 1) & current_x_mask;
+                        *memory.entry(index ^ xor).or_default() = num;
+                    }
+                }
+            }
+        }
+
+        memory.values().sum()
     }
 }
 
@@ -98,5 +124,15 @@ mem[8] = 0"
     }
 
     #[test]
-    fn d14p2() {}
+    fn d14p2() {
+        assert_eq!(
+            Day14::part2(Day14::parse(
+                "mask = 000000000000000000000000000000X1001X
+mem[42] = 100
+mask = 00000000000000000000000000000000X0XX
+mem[26] = 1"
+            )),
+            208
+        );
+    }
 }
