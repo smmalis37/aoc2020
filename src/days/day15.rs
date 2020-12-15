@@ -1,7 +1,3 @@
-use std::collections::hash_map::Entry;
-
-use rustc_hash::FxHashMap;
-
 use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day15;
@@ -28,24 +24,20 @@ impl DaySolver<'_> for Day15 {
 }
 
 fn run(data: &<Day15 as DaySolver>::Parsed, count: usize) -> usize {
-    let mut map = FxHashMap::with_capacity_and_hasher(count, Default::default());
+    let mut map = vec![None; count];
     for (i, &x) in data.iter().enumerate() {
-        map.insert(x, i + 1);
+        map[x] = Some(i + 1);
     }
 
     let mut last = *data.last().unwrap();
 
     for turn in data.len()..count {
-        match map.entry(last) {
-            Entry::Occupied(mut v) => {
-                let val = v.get_mut();
-                last = turn - *val;
-                *val = turn;
-            }
-            Entry::Vacant(v) => {
-                v.insert(turn);
-                last = 0;
-            }
+        if let Some(v) = map[last] {
+            map[last] = Some(turn);
+            last = turn - v;
+        } else {
+            map[last] = Some(turn);
+            last = 0;
         }
     }
 
