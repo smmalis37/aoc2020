@@ -1,10 +1,15 @@
+use std::num::NonZeroU32;
+
 use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day15;
 
+type N = u32;
+type NZ = NonZeroU32;
+
 impl DaySolver<'_> for Day15 {
-    type Parsed = Vec<usize>;
-    type Output = usize;
+    type Parsed = Vec<N>;
+    type Output = N;
 
     fn parse(input: &str) -> Self::Parsed {
         input
@@ -23,20 +28,23 @@ impl DaySolver<'_> for Day15 {
     }
 }
 
-fn run(data: &<Day15 as DaySolver>::Parsed, count: usize) -> usize {
-    let mut map = vec![None; count];
-    for (i, &x) in data.iter().enumerate() {
-        map[x] = Some(i + 1);
+#[allow(clippy::cast_possible_truncation)]
+fn run(data: &<Day15 as DaySolver>::Parsed, count: N) -> N {
+    let mut map: Vec<Option<NZ>> = vec![None; count as usize];
+    for (&x, i) in data.iter().zip(1..) {
+        map[x as usize] = NZ::new(i);
     }
 
     let mut last = *data.last().unwrap();
 
-    for turn in data.len()..count {
-        if let Some(v) = map[last] {
-            map[last] = Some(turn);
-            last = turn - v;
+    for turn in data.len() as N..count {
+        let i = last as usize;
+        let nz_turn = NZ::new(turn);
+        if let Some(v) = map[i] {
+            map[i] = nz_turn;
+            last = nz_turn.unwrap().get() - v.get();
         } else {
-            map[last] = Some(turn);
+            map[i] = nz_turn;
             last = 0;
         }
     }
