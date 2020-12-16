@@ -87,16 +87,16 @@ impl<'a> DaySolver<'a> for Day16 {
             }
         }
 
-        let mut results: Vec<_> = rules.into_iter().zip(valid_positions.into_iter()).collect();
+        let mut results: Vec<_> = rules.iter().zip(valid_positions.iter_mut()).collect();
         results.sort_unstable_by_key(|v| v.1.len());
 
         for i in 0..results.len() {
-            let source = &results[i].1;
+            let source = &*results[i].1;
             debug_assert!(source.len() == 1);
             let v = source[0];
 
             for j in &mut results[i + 1..] {
-                remove_item(&mut j.1, v);
+                remove_item(j.1, v);
             }
         }
 
