@@ -1,6 +1,6 @@
 #![allow(clippy::cast_lossless)]
 
-use std::{collections::HashMap, ops::RangeInclusive};
+use std::ops::RangeInclusive;
 
 use serde_scan::scan;
 
@@ -8,14 +8,16 @@ use crate::day_solver::DaySolver;
 
 pub struct Day16;
 
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+type N = u16;
+
+#[derive(Clone, Debug)]
 pub struct Rule<'a> {
     name: &'a [u8],
-    ranges: [RangeInclusive<u16>; 2],
+    ranges: [RangeInclusive<N>; 2],
 }
 
 impl<'a> DaySolver<'a> for Day16 {
-    type Parsed = (Vec<Rule<'a>>, Vec<u16>, Vec<Vec<u16>>);
+    type Parsed = (Vec<Rule<'a>>, Vec<N>, Vec<Vec<N>>);
     type Output = u64;
 
     fn parse(input: &'a str) -> Self::Parsed {
@@ -34,15 +36,15 @@ impl<'a> DaySolver<'a> for Day16 {
             });
         }
 
-        input.next();
+        input.next(); // your ticket:
         let mine = input
             .next()
             .unwrap()
             .split(',')
             .map(|x| x.parse().unwrap())
             .collect();
-        input.nth(1);
 
+        input.nth(1); // nearby tickets:
         let tickets = input
             .map(|l| l.split(',').map(|x| x.parse().unwrap()).collect())
             .collect();
@@ -54,13 +56,8 @@ impl<'a> DaySolver<'a> for Day16 {
         let mut sum = 0;
 
         for t in &tickets {
-            for &v in t {
-                if !rules
-                    .iter()
-                    .any(|r| r.ranges.iter().any(|r2| r2.contains(&v)))
-                {
-                    sum += v;
-                }
+            if let Some(v) = is_valid_ticket(t, &rules) {
+                sum += v;
             }
         }
 
@@ -69,61 +66,65 @@ impl<'a> DaySolver<'a> for Day16 {
 
     #[allow(clippy::cast_possible_truncation)]
     fn part2((rules, mine, mut tickets): Self::Parsed) -> Self::Output {
-        let ticket_length = tickets[0].len();
+        let ticket_length = tickets[0].len() as N;
 
-        tickets.retain(|t| {
-            t.iter().all(|v| {
-                rules
-                    .iter()
-                    .any(|r| r.ranges.iter().any(|r2| r2.contains(v)))
-            })
-        });
+        tickets.retain(|t| is_valid_ticket(t, &rules).is_none());
 
-        let mut answers: HashMap<Rule, Vec<u16>> = rules
-            .iter()
-            .map(|r| (r.clone(), (0..ticket_length as u16).collect()))
-            .collect();
+        let mut valid_positions = vec![(0..ticket_length).collect::<Vec<_>>(); rules.len()];
 
-        for t in &tickets {
-            for (i, v) in t.iter().enumerate() {
-                for r in &rules {
+        for t in tickets {
+            for (vi, v) in t.iter().enumerate() {
+                for (ri, r) in rules.iter().enumerate() {
                     if !r.ranges.iter().any(|r2| r2.contains(v)) {
-                        let m = answers.get_mut(r).unwrap();
-                        if let Some(i2) = m.iter().position(|&x| x == i as u16) {
-                            m.swap_remove(i2);
-                        }
+                        remove_item(&mut valid_positions[ri], vi as N);
                     }
                 }
             }
         }
 
-        let mut answers = answers.into_iter().collect::<Vec<_>>();
-        answers.sort_unstable_by_key(|v| v.1.len());
+        let mut results: Vec<_> = rules.into_iter().zip(valid_positions.into_iter()).collect();
+        results.sort_unstable_by_key(|v| v.1.len());
 
-        for i in 0..answers.len() {
-            let source = &answers[i].1;
-            assert!(source.len() == 1);
-            let r = source[0];
-            for j in i + 1..answers.len() {
-                let dest = &mut answers[j].1;
-                if let Some(i2) = dest.iter().position(|&x| x == r) {
-                    dest.swap_remove(i2);
-                }
+        for i in 0..results.len() {
+            let source = &results[i].1;
+            debug_assert!(source.len() == 1);
+            let v = source[0];
+
+            for j in &mut results[i + 1..] {
+                remove_item(&mut j.1, v);
             }
         }
 
-        assert!(answers.iter().all(|v| v.1.len() == 1));
+        debug_assert!(results.iter().all(|v| v.1.len() == 1));
 
-        answers
+        results
             .into_iter()
-            .filter_map(|r| {
-                if r.0.name.starts_with(b"departure") {
-                    Some(mine[r.1[0] as usize] as u64)
+            .filter_map(|(r, v)| {
+                if r.name.starts_with(b"departure") {
+                    Some(mine[v[0] as usize] as u64)
                 } else {
                     None
                 }
             })
             .product()
+    }
+}
+
+fn is_valid_ticket(t: &[N], rules: &[Rule]) -> Option<N> {
+    for &v in t {
+        if !rules
+            .iter()
+            .any(|r| r.ranges.iter().any(|r2| r2.contains(&v)))
+        {
+            return Some(v);
+        }
+    }
+    None
+}
+
+fn remove_item(r: &mut Vec<N>, v: N) {
+    if let Some(i) = r.iter().position(|&x| x == v) {
+        r.swap_remove(i);
     }
 }
 
