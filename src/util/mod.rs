@@ -119,4 +119,41 @@ impl<T> Grid<T> {
     pub fn line_length(&self) -> usize {
         self.line_length
     }
+
+    #[inline]
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&[T]) -> bool,
+    {
+        let len = self.len();
+        let mut del = 0;
+
+        for i in 0..len {
+            if !f(&self[i]) {
+                del += 1;
+            } else if del > 0 {
+                self.swap(i - del, i);
+            }
+        }
+
+        if del > 0 {
+            self.truncate(len - del);
+        }
+    }
+
+    #[inline]
+    fn swap(&mut self, a: usize, b: usize) {
+        let (start, b) = self.data.split_at_mut(b * self.line_length);
+        let b = &mut b[..self.line_length];
+        let (_, a) = start.split_at_mut(a * self.line_length);
+        let a = &mut a[..self.line_length];
+
+        a.swap_with_slice(b);
+    }
+
+    #[inline]
+    fn truncate(&mut self, len: usize) {
+        self.data.truncate(len * self.line_length);
+        self.line_count = len;
+    }
 }

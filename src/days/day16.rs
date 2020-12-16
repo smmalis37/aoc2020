@@ -4,7 +4,7 @@ use std::ops::RangeInclusive;
 
 use serde_scan::scan;
 
-use crate::day_solver::DaySolver;
+use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day16;
 
@@ -17,7 +17,7 @@ pub struct Rule<'a> {
 }
 
 impl<'a> DaySolver<'a> for Day16 {
-    type Parsed = (Vec<Rule<'a>>, Vec<N>, Vec<Vec<N>>);
+    type Parsed = (Vec<Rule<'a>>, Vec<N>, Grid<N>);
     type Output = u64;
 
     fn parse(input: &'a str) -> Self::Parsed {
@@ -40,13 +40,18 @@ impl<'a> DaySolver<'a> for Day16 {
         let mine = input
             .next()
             .unwrap()
-            .split(',')
+            .as_bytes()
+            .split(|&x| x == b',')
             .map(|x| x.parse().unwrap())
             .collect();
 
         input.nth(1); // nearby tickets:
         let tickets = input
-            .map(|l| l.split(',').map(|x| x.parse().unwrap()).collect())
+            .map(|l| {
+                l.as_bytes()
+                    .split(|&x| x == b',')
+                    .map(|x| x.parse().unwrap())
+            })
             .collect();
 
         (rules, mine, tickets)
@@ -55,7 +60,7 @@ impl<'a> DaySolver<'a> for Day16 {
     fn part1((rules, _, tickets): Self::Parsed) -> Self::Output {
         let mut sum = 0;
 
-        for t in &tickets {
+        for t in tickets.iter() {
             if let Some(v) = is_valid_ticket(t, &rules) {
                 sum += v;
             }
@@ -72,7 +77,7 @@ impl<'a> DaySolver<'a> for Day16 {
 
         let mut valid_positions = vec![(0..ticket_length).collect::<Vec<_>>(); rules.len()];
 
-        for t in tickets {
+        for t in tickets.iter() {
             for (vi, v) in t.iter().enumerate() {
                 for (ri, r) in rules.iter().enumerate() {
                     if !r.ranges.iter().any(|r2| r2.contains(v)) {
