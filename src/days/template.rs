@@ -24,12 +24,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn d15p1() {
+    fn dNUMp1() {
         assert_eq!(DayNUM::part1(DayNUM::parse("")), 0);
     }
 
     #[test]
-    fn d14p2() {
+    fn dNUMp2() {
         assert_eq!(DayNUM::part2(DayNUM::parse("")), 0);
     }
 }
