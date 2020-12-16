@@ -1,20 +1,22 @@
-use std::ops::RangeInclusive;
+#![allow(clippy::cast_lossless)]
+
+use std::{collections::HashMap, ops::RangeInclusive};
 
 use serde_scan::scan;
 
-use crate::{day_solver::DaySolver, util::*};
+use crate::day_solver::DaySolver;
 
 pub struct Day16;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Rule<'a> {
     name: &'a [u8],
     ranges: [RangeInclusive<u16>; 2],
 }
 
 impl<'a> DaySolver<'a> for Day16 {
-    type Parsed = (Vec<Rule<'a>>, Grid<u16>);
-    type Output = u16;
+    type Parsed = (Vec<Rule<'a>>, Vec<u16>, Vec<Vec<u16>>);
+    type Output = u64;
 
     fn parse(input: &'a str) -> Self::Parsed {
         let mut input = input.lines();
@@ -32,19 +34,26 @@ impl<'a> DaySolver<'a> for Day16 {
             });
         }
 
-        input.nth(3); // skip my ticket for now
+        input.next();
+        let mine = input
+            .next()
+            .unwrap()
+            .split(',')
+            .map(|x| x.parse().unwrap())
+            .collect();
+        input.nth(1);
 
         let tickets = input
-            .map(|l| l.split(',').map(|x| x.parse().unwrap()))
+            .map(|l| l.split(',').map(|x| x.parse().unwrap()).collect())
             .collect();
 
-        (rules, tickets)
+        (rules, mine, tickets)
     }
 
-    fn part1((rules, tickets): Self::Parsed) -> Self::Output {
+    fn part1((rules, _, tickets): Self::Parsed) -> Self::Output {
         let mut sum = 0;
 
-        for t in tickets.iter() {
+        for t in &tickets {
             for &v in t {
                 if !rules
                     .iter()
@@ -55,11 +64,66 @@ impl<'a> DaySolver<'a> for Day16 {
             }
         }
 
-        sum
+        sum as u64
     }
 
-    fn part2(data: Self::Parsed) -> Self::Output {
-        todo!()
+    #[allow(clippy::cast_possible_truncation)]
+    fn part2((rules, mine, mut tickets): Self::Parsed) -> Self::Output {
+        let ticket_length = tickets[0].len();
+
+        tickets.retain(|t| {
+            t.iter().all(|v| {
+                rules
+                    .iter()
+                    .any(|r| r.ranges.iter().any(|r2| r2.contains(v)))
+            })
+        });
+
+        let mut answers: HashMap<Rule, Vec<u16>> = rules
+            .iter()
+            .map(|r| (r.clone(), (0..ticket_length as u16).collect()))
+            .collect();
+
+        for t in &tickets {
+            for (i, v) in t.iter().enumerate() {
+                for r in &rules {
+                    if !r.ranges.iter().any(|r2| r2.contains(v)) {
+                        let m = answers.get_mut(r).unwrap();
+                        if let Some(i2) = m.iter().position(|&x| x == i as u16) {
+                            m.swap_remove(i2);
+                        }
+                    }
+                }
+            }
+        }
+
+        let mut answers = answers.into_iter().collect::<Vec<_>>();
+        answers.sort_unstable_by_key(|v| v.1.len());
+
+        for i in 0..answers.len() {
+            let source = &answers[i].1;
+            assert!(source.len() == 1);
+            let r = source[0];
+            for j in i + 1..answers.len() {
+                let dest = &mut answers[j].1;
+                if let Some(i2) = dest.iter().position(|&x| x == r) {
+                    dest.swap_remove(i2);
+                }
+            }
+        }
+
+        assert!(answers.iter().all(|v| v.1.len() == 1));
+
+        answers
+            .into_iter()
+            .filter_map(|r| {
+                if r.0.name.starts_with(b"departure") {
+                    Some(mine[r.1[0] as usize] as u64)
+                } else {
+                    None
+                }
+            })
+            .product()
     }
 }
 
@@ -86,10 +150,5 @@ nearby tickets:
             )),
             71
         );
-    }
-
-    #[test]
-    fn d16p2() {
-        assert_eq!(Day16::part2(Day16::parse("")), 0);
     }
 }
