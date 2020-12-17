@@ -1,6 +1,6 @@
 #![allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
 
-use std::collections::{HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::day_solver::DaySolver;
 
@@ -121,7 +121,7 @@ const ADJUSTS4: [(N, N, N, N); 80] = [
 ];
 
 impl DaySolver<'_> for Day17 {
-    type Parsed = HashSet<(N, N, N)>;
+    type Parsed = FxHashSet<(N, N, N)>;
     type Output = usize;
 
     fn parse(input: &str) -> Self::Parsed {
@@ -152,9 +152,9 @@ impl DaySolver<'_> for Day17 {
     }
 }
 
-fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: HashSet<T>, adjusts: &[T]) -> usize {
-    let mut counts: HashMap<_, N> = HashMap::new();
-    let mut next = HashSet::new();
+fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: FxHashSet<T>, adjusts: &[T]) -> usize {
+    let mut counts: FxHashMap<_, N> = FxHashMap::default();
+    let mut next = FxHashSet::default();
 
     for _ in 0..6 {
         next.clear();
