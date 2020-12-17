@@ -154,8 +154,10 @@ impl DaySolver<'_> for Day17 {
 
 fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: HashSet<T>, adjusts: &[T]) -> usize {
     let mut counts: HashMap<_, N> = HashMap::new();
+    let mut next = HashSet::new();
 
     for _ in 0..6 {
+        next.clear();
         counts.clear();
 
         for &pos in &data {
@@ -164,8 +166,6 @@ fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: HashSet<T>, adjusts:
                 *counts.entry(key).or_default() += 1;
             }
         }
-
-        let mut next = HashSet::new();
 
         for &pos in &data {
             let c = *counts.get(&pos).unwrap_or(&0);
@@ -180,7 +180,7 @@ fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: HashSet<T>, adjusts:
             }
         }
 
-        data = next;
+        std::mem::swap(&mut data, &mut next);
     }
 
     data.len()
