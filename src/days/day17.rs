@@ -6,7 +6,7 @@ use crate::day_solver::DaySolver;
 
 pub struct Day17;
 
-type N = i16;
+type N = i8;
 
 const ADJUSTS3: [(N, N, N); 26] = [
     (-1, -1, -1),
@@ -130,78 +130,80 @@ impl DaySolver<'_> for Day17 {
             .split(|&x| x == b'\n')
             .enumerate()
             .flat_map(|(y, l)| {
-                l.iter()
-                    .enumerate()
-                    .filter(|(_, &c)| c == b'#')
-                    .map(move |(x, _)| (x as N, y as N, 0))
+                l.iter().enumerate().filter_map(move |(x, &c)| {
+                    if c == b'#' {
+                        Some((x as N, y as N, 0))
+                    } else {
+                        None
+                    }
+                })
             })
             .collect()
     }
 
-    fn part1(mut data: Self::Parsed) -> Self::Output {
-        for _ in 0..6 {
-            let mut counts: HashMap<_, N> = HashMap::new();
-
-            for (x, y, z) in &data {
-                for &(i, j, k) in &ADJUSTS3 {
-                    let key = (x + i, y + j, z + k);
-                    *counts.entry(key).or_default() += 1;
-                }
-            }
-
-            let mut next = HashSet::new();
-
-            for &pos in &data {
-                let c = *counts.get(&pos).unwrap_or(&0);
-                if c == 2 || c == 3 {
-                    next.insert(pos);
-                }
-            }
-
-            for (&pos, &count) in counts.iter().filter(|(p, _)| !data.contains(p)) {
-                if count == 3 {
-                    next.insert(pos);
-                }
-            }
-
-            data = next;
-        }
-        data.len()
+    fn part1(data: Self::Parsed) -> Self::Output {
+        run(data, &ADJUSTS3)
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        let mut data: HashSet<(i16, i16, i16, i16)> =
-            data.into_iter().map(|(x, y, z)| (x, y, z, 0)).collect();
+        let data = data.into_iter().map(|(x, y, z)| (x, y, z, 0)).collect();
 
-        for _ in 0..6 {
-            let mut counts: HashMap<_, N> = HashMap::new();
+        run(data, &ADJUSTS4)
+    }
+}
 
-            for (x, y, z, w) in &data {
-                for &(i, j, k, l) in &ADJUSTS4 {
-                    let key = (x + i, y + j, z + k, w + l);
-                    *counts.entry(key).or_default() += 1;
-                }
+fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: HashSet<T>, adjusts: &[T]) -> usize {
+    let mut counts: HashMap<_, N> = HashMap::new();
+
+    for _ in 0..6 {
+        counts.clear();
+
+        for &pos in &data {
+            for &adj in adjusts {
+                let key = pos.tuple_add(&adj);
+                *counts.entry(key).or_default() += 1;
             }
-
-            let mut next = HashSet::new();
-
-            for &pos in &data {
-                let c = *counts.get(&pos).unwrap_or(&0);
-                if c == 2 || c == 3 {
-                    next.insert(pos);
-                }
-            }
-
-            for (&pos, &count) in counts.iter().filter(|(p, _)| !data.contains(p)) {
-                if count == 3 {
-                    next.insert(pos);
-                }
-            }
-
-            data = next;
         }
 
-        data.len()
+        let mut next = HashSet::new();
+
+        for &pos in &data {
+            let c = *counts.get(&pos).unwrap_or(&0);
+            if c == 2 || c == 3 {
+                next.insert(pos);
+            }
+        }
+
+        for (&pos, &count) in counts.iter().filter(|(p, _)| !data.contains(p)) {
+            if count == 3 {
+                next.insert(pos);
+            }
+        }
+
+        data = next;
+    }
+
+    data.len()
+}
+
+trait TupleAdd {
+    fn tuple_add(&self, other: &Self) -> Self;
+}
+
+impl TupleAdd for (N, N, N) {
+    fn tuple_add(&self, other: &Self) -> Self {
+        (self.0 + other.0, self.1 + other.1, self.2 + other.2)
+    }
+}
+
+impl TupleAdd for (N, N, N, N) {
+    fn tuple_add(&self, other: &Self) -> Self {
+        (
+            self.0 + other.0,
+            self.1 + other.1,
+            self.2 + other.2,
+            self.3 + other.3,
+        )
     }
 }
 
