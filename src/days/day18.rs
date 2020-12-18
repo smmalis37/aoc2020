@@ -49,6 +49,7 @@ struct AdditionWrapper<T: Iterator<Item = u8>> {
 impl<T: Iterator<Item = u8>> Iterator for AdditionWrapper<T> {
     type Item = u8;
 
+    #[allow(clippy::option_if_let_else)]
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(x) = self.previous {
             self.previous = self.previous2.take();
@@ -68,7 +69,6 @@ impl<T: Iterator<Item = u8>> Iterator for AdditionWrapper<T> {
                     self.previous = Some(b')');
                     Some(b')')
                 }
-                b' ' => unreachable!(),
                 x => Some(x),
             }
         } else {
