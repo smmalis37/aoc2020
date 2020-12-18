@@ -12,25 +12,23 @@ enum Op {
 
 use Op::*;
 
-fn real_parse(x: &[u8]) -> impl Iterator<Item = impl Iterator<Item = u8> + '_> {
-    x.split(|&x| x == b'\n')
-        .map(|l| l.iter().filter(|&&x| x != b' ').copied())
-}
-
 impl<'a> DaySolver<'a> for Day18 {
-    type Parsed = &'a [u8];
+    type Parsed = impl Iterator<Item = impl Iterator<Item = u8> + 'a> + Clone;
     type Output = N;
 
     fn parse(input: &'a str) -> Self::Parsed {
-        input.as_bytes()
+        input
+            .as_bytes()
+            .split(|&x| x == b'\n')
+            .map(|l| l.iter().filter(|&&x| x != b' ').copied())
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        real_parse(data).map(|mut e| eval(&mut e)).sum()
+        data.map(|mut e| eval(&mut e)).sum()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        real_parse(data).map(|e| eval(&mut transform(e))).sum()
+        data.map(|e| eval(&mut transform(e))).sum()
     }
 }
 
