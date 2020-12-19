@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use arrayvec::ArrayVec;
-use regex::bytes::Regex;
+use regex::bytes::{Regex, RegexSet};
 
 use crate::{day_solver::DaySolver, util::*};
 
@@ -73,43 +73,52 @@ impl<'a> DaySolver<'a> for Day19 {
     }
 
     fn part1((rules, lines): Self::Parsed) -> Self::Output {
-        let regex = Regex::new(&construct_regex(&rules)).unwrap();
+        let regex = construct_regex(&rules);
         lines.filter(|l| regex.is_match(l)).count()
     }
 
-    fn part2((mut rules, lines): Self::Parsed) -> Self::Output {
-        let eight_left = [42].iter().copied().collect();
-        let eight_right = [42, 8].iter().copied().collect();
-        rules.insert(8, TwoSide(eight_left, eight_right));
-        let eleven_left = [42, 31].iter().copied().collect();
-        let eleven_right = [42, 11, 31].iter().copied().collect();
-        rules.insert(11, TwoSide(eleven_left, eleven_right));
-        Self::part1((rules, lines))
+    fn part2((rules, lines): Self::Parsed) -> Self::Output {
+        let regex = construct_regex_set(&rules);
+        lines.filter(|l| regex.is_match(l)).count()
     }
 }
 
-fn construct_regex(rules: &HashMap<u8, Rule>) -> String {
-    format!("^{}$", recurse_construct(rules, 0))
+fn construct_regex_set(rules: &HashMap<u8, Rule>) -> RegexSet {
+    let template = format!("^{}$", recurse_construct(rules, 0, true));
+    RegexSet::new((1..5).map(|i| template.replace("X", &i.to_string()))).unwrap()
 }
 
-fn recurse_construct(rules: &HashMap<u8, Rule>, me: u8) -> String {
-    match rules.get(&me).unwrap() {
-        Character(a) => (*a as char).to_string(),
-        OneSide(subrules) => handle_subrules(rules, subrules),
-        TwoSide(left, right) => format!(
-            "(({})|({}))",
-            handle_subrules(rules, left),
-            handle_subrules(rules, right)
-        ),
+fn construct_regex(rules: &HashMap<u8, Rule>) -> Regex {
+    Regex::new(&format!("^{}$", recurse_construct(rules, 0, false))).unwrap()
+}
+
+fn recurse_construct(rules: &HashMap<u8, Rule>, me: u8, is_part_two: bool) -> String {
+    if is_part_two && me == 8 {
+        format!("(?:{})+", handle_subrules(rules, &[42], is_part_two))
+    } else if is_part_two && me == 11 {
+        let ft = handle_subrules(rules, &[42], is_part_two);
+        let to = handle_subrules(rules, &[31], is_part_two);
+        format!("(?:{}){{X}}(?:{}){{X}}", ft, to)
+    } else {
+        match rules.get(&me).unwrap() {
+            Character(a) => (*a as char).to_string(),
+            OneSide(subrules) => handle_subrules(rules, subrules, is_part_two),
+            TwoSide(left, right) => format!(
+                "(?:(?:{})|(?:{}))",
+                handle_subrules(rules, left, is_part_two),
+                handle_subrules(rules, right, is_part_two)
+            ),
+        }
     }
 }
 
 fn handle_subrules<'a>(
     rules: &HashMap<u8, Rule>,
     list: impl IntoIterator<Item = &'a u8>,
+    is_part_two: bool,
 ) -> String {
     list.into_iter()
-        .map(|&x| recurse_construct(rules, x))
+        .map(|&x| recurse_construct(rules, x, is_part_two))
         .fold(String::new(), |acc, e| acc + &e)
 }
 
