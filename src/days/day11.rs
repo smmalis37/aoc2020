@@ -1,5 +1,3 @@
-#![allow(clippy::cast_sign_loss, clippy::cast_possible_wrap)]
-
 use crate::{day_solver::DaySolver, util::*};
 
 use arrayvec::ArrayVec;

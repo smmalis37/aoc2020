@@ -107,7 +107,6 @@ fn eval(tokens: &mut impl Iterator<Item = u8>) -> N {
     result
 }
 
-#[allow(clippy::cast_lossless)]
 fn convert(x: u8) -> N {
     (x - b'0') as N
 }

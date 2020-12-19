@@ -1,5 +1,3 @@
-#![allow(clippy::cast_possible_truncation, clippy::cast_possible_wrap)]
-
 use rustc_hash::{FxHashMap, FxHashSet};
 
 use crate::day_solver::DaySolver;

@@ -6,7 +6,11 @@
     clippy::missing_const_for_fn,
     clippy::needless_range_loop,
     clippy::default_trait_access,
-    clippy::option_if_let_else
+    clippy::option_if_let_else,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_wrap,
+    clippy::cast_lossless
 )]
 #![feature(type_alias_impl_trait)]
 

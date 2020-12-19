@@ -28,7 +28,6 @@ impl DaySolver<'_> for Day15 {
     }
 }
 
-#[allow(clippy::cast_possible_truncation)]
 fn run(data: &<Day15 as DaySolver>::Parsed, count: N) -> N {
     let mut map: Vec<Option<NZ>> = vec![None; count as usize];
     for (&x, i) in data.iter().zip(1..) {
@@ -53,7 +52,6 @@ fn run(data: &<Day15 as DaySolver>::Parsed, count: N) -> N {
 }
 
 #[cfg(test)]
-#[allow(clippy::unreadable_literal)]
 mod tests {
     use super::*;
 

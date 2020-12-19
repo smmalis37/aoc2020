@@ -1,10 +1,3 @@
-#![allow(
-    clippy::cast_possible_truncation,
-    clippy::cast_sign_loss,
-    clippy::cast_possible_wrap,
-    clippy::needless_continue
-)]
-
 use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day8;
@@ -44,6 +37,7 @@ impl DaySolver<'_> for Day8 {
         run(&program).1
     }
 
+    #[allow(clippy::needless_continue)]
     fn part2(mut program: Self::Parsed) -> Self::Output {
         let trace = run(&program).2;
 

@@ -1,5 +1,3 @@
-#![allow(clippy::cast_lossless)]
-
 use std::ops::RangeInclusive;
 
 use serde_scan::scan;
@@ -69,7 +67,6 @@ impl<'a> DaySolver<'a> for Day16 {
         sum as u64
     }
 
-    #[allow(clippy::cast_possible_truncation)]
     fn part2((rules, mine, mut tickets): Self::Parsed) -> Self::Output {
         let ticket_length = tickets[0].len() as N;
 

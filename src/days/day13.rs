@@ -43,7 +43,6 @@ impl DaySolver<'_> for Day13 {
         min_id * min
     }
 
-    #[allow(clippy::cast_possible_truncation)]
     fn part2((_, ids): Self::Parsed) -> Self::Output {
         let mut previous = 1;
         let mut products = 1;
