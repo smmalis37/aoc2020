@@ -5,7 +5,8 @@
     clippy::match_on_vec_items,
     clippy::missing_const_for_fn,
     clippy::needless_range_loop,
-    clippy::default_trait_access
+    clippy::default_trait_access,
+    clippy::option_if_let_else
 )]
 #![feature(type_alias_impl_trait)]
 
