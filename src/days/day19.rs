@@ -1,6 +1,7 @@
-use std::{collections::HashMap, num::NonZeroUsize};
+use std::num::NonZeroUsize;
 
 use arrayvec::ArrayVec;
+use rustc_hash::FxHashMap;
 
 use crate::{day_solver::DaySolver, util::*};
 
@@ -18,11 +19,11 @@ pub enum Rule {
 use Rule::*;
 
 impl<'a> DaySolver<'a> for Day19 {
-    type Parsed = (HashMap<N, Rule>, impl Iterator<Item = &'a [u8]> + Clone);
+    type Parsed = (FxHashMap<N, Rule>, impl Iterator<Item = &'a [u8]> + Clone);
     type Output = usize;
 
     fn parse(input: &'a str) -> Self::Parsed {
-        let mut rulemap = HashMap::new();
+        let mut rulemap = FxHashMap::default();
         let mut lines = input.as_bytes().split(|&x| x == b'\n');
 
         while let Some(l) = lines.next() {
@@ -106,7 +107,7 @@ impl<'a> DaySolver<'a> for Day19 {
     }
 }
 
-fn recursive_match(l: &[u8], rules: &HashMap<N, Rule>, me: N) -> Option<NonZeroUsize> {
+fn recursive_match(l: &[u8], rules: &FxHashMap<N, Rule>, me: N) -> Option<NonZeroUsize> {
     match rules.get(&me).unwrap() {
         Character(a) => {
             if l.get(0) == Some(a) {
@@ -128,7 +129,7 @@ fn recursive_match(l: &[u8], rules: &HashMap<N, Rule>, me: N) -> Option<NonZeroU
     }
 }
 
-fn handle_subrules(l: &[u8], rules: &HashMap<N, Rule>, subrules: &[N]) -> Option<NonZeroUsize> {
+fn handle_subrules(l: &[u8], rules: &FxHashMap<N, Rule>, subrules: &[N]) -> Option<NonZeroUsize> {
     let mut pos = 0;
 
     for &rule in subrules {
