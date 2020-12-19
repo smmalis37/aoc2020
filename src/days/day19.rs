@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, num::NonZeroUsize};
 
 use arrayvec::ArrayVec;
 
@@ -75,7 +75,7 @@ impl<'a> DaySolver<'a> for Day19 {
 
     fn part1((rules, lines): Self::Parsed) -> Self::Output {
         lines
-            .filter(|l| recursive_match(l, &rules, 0).map_or(false, |x| x == l.len()))
+            .filter(|l| recursive_match(l, &rules, 0).map_or(false, |x| x.get() == l.len()))
             .count()
     }
 
@@ -87,12 +87,12 @@ impl<'a> DaySolver<'a> for Day19 {
             let mut ftpos = 0;
             while let Some(x) = recursive_match(&l[ftpos..], &rules, 42) {
                 ftcount += 1;
-                ftpos += x;
+                ftpos += x.get();
 
                 let mut topos = ftpos;
                 for _ in 1..ftcount {
                     if let Some(x) = recursive_match(&l[topos..], &rules, 31) {
-                        topos += x;
+                        topos += x.get();
                         if topos == l.len() {
                             count += 1;
                             break;
@@ -106,11 +106,11 @@ impl<'a> DaySolver<'a> for Day19 {
     }
 }
 
-fn recursive_match(l: &[u8], rules: &HashMap<N, Rule>, me: N) -> Option<usize> {
+fn recursive_match(l: &[u8], rules: &HashMap<N, Rule>, me: N) -> Option<NonZeroUsize> {
     match rules.get(&me).unwrap() {
         Character(a) => {
             if l.get(0) == Some(a) {
-                Some(1)
+                NonZeroUsize::new(1)
             } else {
                 None
             }
@@ -128,18 +128,18 @@ fn recursive_match(l: &[u8], rules: &HashMap<N, Rule>, me: N) -> Option<usize> {
     }
 }
 
-fn handle_subrules(l: &[u8], rules: &HashMap<N, Rule>, subrules: &[N]) -> Option<usize> {
+fn handle_subrules(l: &[u8], rules: &HashMap<N, Rule>, subrules: &[N]) -> Option<NonZeroUsize> {
     let mut pos = 0;
 
     for &rule in subrules {
         if let Some(x) = recursive_match(&l[pos..], rules, rule) {
-            pos += x;
+            pos += x.get();
         } else {
             return None;
         }
     }
 
-    Some(pos)
+    NonZeroUsize::new(pos)
 }
 
 #[cfg(test)]
