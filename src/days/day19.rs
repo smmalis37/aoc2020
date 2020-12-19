@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Write};
 
 use arrayvec::ArrayVec;
 use regex::bytes::{Regex, RegexSet};
@@ -73,41 +73,52 @@ impl<'a> DaySolver<'a> for Day19 {
     }
 
     fn part1((rules, lines): Self::Parsed) -> Self::Output {
-        let regex = construct_regex(&rules);
+        let regex = Regex::new(&construct_regex(&rules, false)).unwrap();
         lines.filter(|l| regex.is_match(l)).count()
     }
 
     fn part2((rules, lines): Self::Parsed) -> Self::Output {
-        let regex = construct_regex_set(&rules);
+        let template = construct_regex(&rules, true);
+        let regex = RegexSet::new((1..5).map(|i| template.replace("X", &i.to_string()))).unwrap();
         lines.filter(|l| regex.is_match(l)).count()
     }
 }
 
-fn construct_regex_set(rules: &HashMap<u8, Rule>) -> RegexSet {
-    let template = format!("^{}$", recurse_construct(rules, 0, true));
-    RegexSet::new((1..5).map(|i| template.replace("X", &i.to_string()))).unwrap()
+fn construct_regex(rules: &HashMap<u8, Rule>, is_part_two: bool) -> String {
+    let mut regex = String::new();
+    regex.write_char('^').unwrap();
+    recurse_construct(rules, 0, is_part_two, &mut regex);
+    regex.write_char('$').unwrap();
+    regex
 }
 
-fn construct_regex(rules: &HashMap<u8, Rule>) -> Regex {
-    Regex::new(&format!("^{}$", recurse_construct(rules, 0, false))).unwrap()
-}
-
-fn recurse_construct(rules: &HashMap<u8, Rule>, me: u8, is_part_two: bool) -> String {
+fn recurse_construct(
+    rules: &HashMap<u8, Rule>,
+    me: u8,
+    is_part_two: bool,
+    output: &mut impl Write,
+) {
     if is_part_two && me == 8 {
-        format!("(?:{})+", handle_subrules(rules, &[42], is_part_two))
+        output.write_str("(?:").unwrap();
+        handle_subrules(rules, &[42], is_part_two, output);
+        output.write_str(")+").unwrap();
     } else if is_part_two && me == 11 {
-        let ft = handle_subrules(rules, &[42], is_part_two);
-        let to = handle_subrules(rules, &[31], is_part_two);
-        format!("(?:{}){{X}}(?:{}){{X}}", ft, to)
+        output.write_str("(?:").unwrap();
+        handle_subrules(rules, &[42], is_part_two, output);
+        output.write_str(r"){X}(?:").unwrap();
+        handle_subrules(rules, &[31], is_part_two, output);
+        output.write_str(r"){X}").unwrap();
     } else {
         match rules.get(&me).unwrap() {
-            Character(a) => (*a as char).to_string(),
-            OneSide(subrules) => handle_subrules(rules, subrules, is_part_two),
-            TwoSide(left, right) => format!(
-                "(?:(?:{})|(?:{}))",
-                handle_subrules(rules, left, is_part_two),
-                handle_subrules(rules, right, is_part_two)
-            ),
+            Character(a) => output.write_char(*a as char).unwrap(),
+            OneSide(subrules) => handle_subrules(rules, subrules, is_part_two, output),
+            TwoSide(left, right) => {
+                output.write_str("(?:(?:").unwrap();
+                handle_subrules(rules, left, is_part_two, output);
+                output.write_str(")|(?:").unwrap();
+                handle_subrules(rules, right, is_part_two, output);
+                output.write_str("))").unwrap();
+            }
         }
     }
 }
@@ -116,10 +127,10 @@ fn handle_subrules<'a>(
     rules: &HashMap<u8, Rule>,
     list: impl IntoIterator<Item = &'a u8>,
     is_part_two: bool,
-) -> String {
+    output: &mut impl Write,
+) {
     list.into_iter()
-        .map(|&x| recurse_construct(rules, x, is_part_two))
-        .fold(String::new(), |acc, e| acc + &e)
+        .for_each(|&x| recurse_construct(rules, x, is_part_two, output));
 }
 
 #[cfg(test)]
