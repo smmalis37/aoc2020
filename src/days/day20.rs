@@ -2,14 +2,14 @@ use petgraph::{graph::NodeIndex, Graph, Undirected};
 use rustc_hash::FxHashMap;
 use serde_scan::scan;
 
-use crate::{day_solver::DaySolver, util::*};
+use crate::day_solver::DaySolver;
 
 pub struct Day20;
 
 #[derive(Clone)]
 pub struct Tile {
     id: u16,
-    tile: Grid<u8>,
+    tile: Vec<Vec<u8>>,
 }
 
 impl DaySolver<'_> for Day20 {
@@ -20,27 +20,37 @@ impl DaySolver<'_> for Day20 {
         let mut map = Graph::new_undirected();
         let mut sides = FxHashMap::default();
 
-        let mut input = input.lines();
+        let mut input = input.lines().peekable();
 
         while let Some(l) = input.next() {
             let id = scan!("Tile {}:" <- l).unwrap();
 
-            let nid = map.add_node(Tile {
-                id,
-                tile: input
-                    .clone()
-                    .take_while(|x| !x.is_empty())
-                    .map(|x| x.as_bytes().iter().copied())
-                    .collect(),
-            });
+            let mut up: Vec<_> = input.next().unwrap().as_bytes().iter().copied().collect();
+            let mut left = Vec::with_capacity(up.len());
+            let mut right = Vec::with_capacity(up.len());
+            left.push(up[0]);
+            right.push(up[up.len() - 1]);
 
-            let tile = &map[nid].tile;
-            input.nth(tile.len());
+            let mut down = Vec::with_capacity(up.len());
+            let mut tile = Vec::with_capacity((up.len() - 2) * (up.len() - 2));
 
-            let mut up: Vec<_> = tile[0].into();
-            let mut down: Vec<_> = tile[tile.len() - 1].into();
-            let mut left: Vec<_> = tile.iter().map(|l| l[0]).collect();
-            let mut right: Vec<_> = tile.iter().map(|l| *l.last().unwrap()).collect();
+            while let Some(l) = input.next() {
+                if input.peek().is_none() || input.peek().unwrap().is_empty() {
+                    input.next();
+                    down.extend(l.as_bytes());
+                    left.push(down[0]);
+                    right.push(down[down.len() - 1]);
+                    break;
+                } else {
+                    let l = l.as_bytes();
+                    let end = l.len() - 1;
+                    left.push(l[0]);
+                    right.push(l[end]);
+                    tile.push(l[1..end].iter().copied().collect());
+                }
+            }
+
+            let nid = map.add_node(Tile { tile, id });
 
             handle_side(&mut map, &mut sides, up.clone(), nid);
             handle_side(&mut map, &mut sides, down.clone(), nid);
@@ -84,8 +94,8 @@ fn handle_side(
     new: Vec<u8>,
     id: NodeIndex,
 ) {
-    if sides.contains_key(&new) {
-        map.update_edge(id, sides.remove(&new).unwrap(), ());
+    if let Some(other) = sides.remove(&new) {
+        map.update_edge(id, other, ());
     } else {
         sides.insert(new, id);
     }
