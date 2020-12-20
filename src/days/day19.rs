@@ -9,7 +9,7 @@ pub struct Day19;
 
 type N = u8;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum Rule {
     Character(u8),
     OneSide(ArrayVec<[N; 3]>),
