@@ -1,4 +1,5 @@
-use rustc_hash::{FxHashMap, FxHashSet};
+use petgraph::{graph::NodeIndex, Graph, Undirected};
+use rustc_hash::FxHashMap;
 use serde_scan::scan;
 
 use crate::{day_solver::DaySolver, util::*};
@@ -7,73 +8,68 @@ pub struct Day20;
 
 #[derive(Clone)]
 pub struct Tile {
-    id: u64,
-    tile: Grid<bool>,
+    id: u16,
+    tile: Grid<u8>,
 }
 
 impl DaySolver<'_> for Day20 {
-    type Parsed = Vec<Tile>;
+    type Parsed = Graph<Tile, (), Undirected>;
     type Output = u64;
 
     fn parse(input: &str) -> Self::Parsed {
+        let mut map = Graph::new_undirected();
+        let mut sides = FxHashMap::default();
+
         let mut input = input.lines();
-        let mut results = Vec::new();
 
         while let Some(l) = input.next() {
             let id = scan!("Tile {}:" <- l).unwrap();
-            let t = Tile {
+
+            let nid = map.add_node(Tile {
                 id,
                 tile: input
                     .clone()
                     .take_while(|x| !x.is_empty())
-                    .map(|x| x.as_bytes().iter().map(|&c| c == b'#'))
+                    .map(|x| x.as_bytes().iter().copied())
                     .collect(),
-            };
-            input.nth(t.tile.len());
-            results.push(t);
-        }
+            });
 
-        results
-    }
+            let tile = &map[nid].tile;
+            input.nth(tile.len());
 
-    fn part1(data: Self::Parsed) -> Self::Output {
-        let mut edges = FxHashMap::default();
+            let mut up: Vec<_> = tile[0].into();
+            let mut down: Vec<_> = tile[tile.len() - 1].into();
+            let mut left: Vec<_> = tile.iter().map(|l| l[0]).collect();
+            let mut right: Vec<_> = tile.iter().map(|l| *l.last().unwrap()).collect();
 
-        for t in data {
-            let mut up = t.tile[0].iter().copied().collect::<Vec<_>>();
-            let mut down = t.tile[t.tile.len() - 1].iter().copied().collect::<Vec<_>>();
-            let mut left = t.tile.iter().map(|l| l[0]).collect::<Vec<_>>();
-            let mut right = t
-                .tile
-                .iter()
-                .map(|l| *l.last().unwrap())
-                .collect::<Vec<_>>();
-
-            handle_edge(&mut edges, up.clone(), t.id);
-            handle_edge(&mut edges, down.clone(), t.id);
-            handle_edge(&mut edges, left.clone(), t.id);
-            handle_edge(&mut edges, right.clone(), t.id);
+            handle_side(&mut map, &mut sides, up.clone(), nid);
+            handle_side(&mut map, &mut sides, down.clone(), nid);
+            handle_side(&mut map, &mut sides, left.clone(), nid);
+            handle_side(&mut map, &mut sides, right.clone(), nid);
 
             up.reverse();
             down.reverse();
             left.reverse();
             right.reverse();
 
-            handle_edge(&mut edges, up, t.id);
-            handle_edge(&mut edges, down, t.id);
-            handle_edge(&mut edges, left, t.id);
-            handle_edge(&mut edges, right, t.id);
+            handle_side(&mut map, &mut sides, up, nid);
+            handle_side(&mut map, &mut sides, down, nid);
+            handle_side(&mut map, &mut sides, left, nid);
+            handle_side(&mut map, &mut sides, right, nid);
         }
 
-        let mut countmap: FxHashMap<u64, u64> = FxHashMap::default();
-        for &e in edges.values() {
-            *countmap.entry(e).or_default() += 1;
-        }
+        map
+    }
 
-        countmap
-            .into_iter()
-            .filter(|&(_, v)| v == 4)
-            .map(|(k, _)| k)
+    fn part1(data: Self::Parsed) -> Self::Output {
+        data.node_indices()
+            .filter_map(|x| {
+                if data.edges(x).count() == 2 {
+                    Some(data[x].id as u64)
+                } else {
+                    None
+                }
+            })
             .product()
     }
 
@@ -82,11 +78,16 @@ impl DaySolver<'_> for Day20 {
     }
 }
 
-fn handle_edge(map: &mut FxHashMap<Vec<bool>, u64>, new: Vec<bool>, id: u64) {
-    if map.contains_key(&new) {
-        map.remove(&new).unwrap();
+fn handle_side(
+    map: &mut <Day20 as DaySolver>::Parsed,
+    sides: &mut FxHashMap<Vec<u8>, NodeIndex>,
+    new: Vec<u8>,
+    id: NodeIndex,
+) {
+    if sides.contains_key(&new) {
+        map.update_edge(id, sides.remove(&new).unwrap(), ());
     } else {
-        map.insert(new, id);
+        sides.insert(new, id);
     }
 }
 
