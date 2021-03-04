@@ -19,7 +19,7 @@ pub enum Rule {
 use Rule::*;
 
 impl<'a> DaySolver<'a> for Day19 {
-    type Parsed = (FxHashMap<N, Rule>, impl Iterator<Item = &'a [u8]> + Clone);
+    type Parsed = (FxHashMap<N, Rule>, Vec<&'a [u8]>);
     type Output = usize;
 
     fn parse(input: &'a str) -> Self::Parsed {
@@ -71,11 +71,12 @@ impl<'a> DaySolver<'a> for Day19 {
             );
         }
 
-        (rulemap, lines)
+        (rulemap, lines.collect())
     }
 
     fn part1((rules, lines): Self::Parsed) -> Self::Output {
         lines
+            .into_iter()
             .filter(|l| recursive_match(l, &rules, 0).map_or(false, |x| x.get() == l.len()))
             .count()
     }

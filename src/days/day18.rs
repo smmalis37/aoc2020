@@ -13,22 +13,25 @@ enum Op {
 use Op::*;
 
 impl<'a> DaySolver<'a> for Day18 {
-    type Parsed = impl Iterator<Item = impl Iterator<Item = u8>> + Clone;
+    type Parsed = Vec<Vec<u8>>;
     type Output = N;
 
     fn parse(input: &'a str) -> Self::Parsed {
         input
             .as_bytes()
             .split(|&x| x == b'\n')
-            .map(|l| l.iter().filter(|&&x| x != b' ').copied())
+            .map(|l| l.iter().filter(|&&x| x != b' ').copied().collect())
+            .collect()
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        data.map(|mut e| eval(&mut e)).sum()
+        data.into_iter().map(|e| eval(&mut e.into_iter())).sum()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
-        data.map(|e| eval(&mut transform(e))).sum()
+        data.into_iter()
+            .map(|e| eval(&mut transform(e.into_iter())))
+            .sum()
     }
 }
 

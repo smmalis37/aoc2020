@@ -12,7 +12,6 @@
     clippy::cast_possible_wrap,
     clippy::cast_lossless
 )]
-#![feature(type_alias_impl_trait)]
 
 pub mod day_solver;
 pub mod days;
