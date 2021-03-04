@@ -13,7 +13,7 @@ enum Op {
 use Op::*;
 
 impl<'a> DaySolver<'a> for Day18 {
-    type Parsed = impl Iterator<Item = impl Iterator<Item = u8> + 'a> + Clone;
+    type Parsed = impl Iterator<Item = impl Iterator<Item = u8>> + Clone;
     type Output = N;
 
     fn parse(input: &'a str) -> Self::Parsed {
@@ -33,20 +33,20 @@ impl<'a> DaySolver<'a> for Day18 {
 }
 
 fn transform(source: impl Iterator<Item = u8>) -> impl Iterator<Item = u8> {
-    AdditionWrapper {
+    Part2Wrapper {
         source,
         previous: Some(b'('),
         previous2: None,
     }
 }
 
-struct AdditionWrapper<T: Iterator<Item = u8>> {
+struct Part2Wrapper<T: Iterator<Item = u8>> {
     source: T,
     previous: Option<u8>,
     previous2: Option<u8>,
 }
 
-impl<T: Iterator<Item = u8>> Iterator for AdditionWrapper<T> {
+impl<T: Iterator<Item = u8>> Iterator for Part2Wrapper<T> {
     type Item = u8;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -82,8 +82,9 @@ fn eval(tokens: &mut impl Iterator<Item = u8>) -> N {
 
     while let Some(i) = tokens.next() {
         match i {
-            x @ b'0'..=b'9' => {
-                result = apply_op(prev_op.unwrap(), result, convert(x));
+            b'0'..=b'9' => {
+                let x = (i - b'0') as N;
+                result = apply_op(prev_op.unwrap(), result, x);
                 prev_op = None;
             }
             b'+' => {
@@ -105,10 +106,6 @@ fn eval(tokens: &mut impl Iterator<Item = u8>) -> N {
     }
 
     result
-}
-
-fn convert(x: u8) -> N {
-    (x - b'0') as N
 }
 
 fn apply_op(prev_op: Op, result: N, x: N) -> N {

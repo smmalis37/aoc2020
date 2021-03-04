@@ -30,13 +30,11 @@ impl DaySolver<'_> for Day13 {
     fn part1((timestamp, ids): Self::Parsed) -> Self::Output {
         let mut min = N::MAX;
         let mut min_id = N::MAX;
-        for id in ids {
-            if let Some(id) = id {
-                let rem = id - (timestamp % id);
-                if rem < min {
-                    min = rem;
-                    min_id = id;
-                }
+        for id in ids.into_iter().flatten() {
+            let rem = id - (timestamp % id);
+            if rem < min {
+                min = rem;
+                min_id = id;
             }
         }
 

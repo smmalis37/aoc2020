@@ -26,7 +26,7 @@ impl<'a> DaySolver<'a> for Day7 {
     fn parse(input: &'a str) -> Self::Parsed {
         let mut graph = Graph::new();
         let mut indexes = FxHashMap::default();
-        let mut my_bag = NodeIndex::end();
+        let mut my_bag_index = NodeIndex::end();
 
         let mut words = input.as_bytes().split(|&x| x == b'\n' || x == b' ');
 
@@ -34,12 +34,12 @@ impl<'a> DaySolver<'a> for Day7 {
             let color = words.next().unwrap();
 
             let outside_bag = Bag { adjective, color };
-            let outside = *indexes
+            let outside_index = *indexes
                 .entry(outside_bag)
                 .or_insert_with(|| graph.add_node(outside_bag));
 
             if outside_bag == MY_BAG {
-                my_bag = outside;
+                my_bag_index = outside_index;
             }
 
             // skip "bags contain"
@@ -57,15 +57,15 @@ impl<'a> DaySolver<'a> for Day7 {
 
                 let inner_adjective = words.next().unwrap();
                 let inner_color = words.next().unwrap();
-                let inside_bag = Bag {
+                let inner_bag = Bag {
                     adjective: inner_adjective,
                     color: inner_color,
                 };
-                let inside = *indexes
-                    .entry(inside_bag)
-                    .or_insert_with(|| graph.add_node(inside_bag));
+                let inner_index = *indexes
+                    .entry(inner_bag)
+                    .or_insert_with(|| graph.add_node(inner_bag));
 
-                graph.add_edge(outside, inside, count);
+                graph.add_edge(outside_index, inner_index, count);
 
                 // bags[,.]
                 if *words.next().unwrap().last().unwrap() == b'.' {
@@ -74,7 +74,7 @@ impl<'a> DaySolver<'a> for Day7 {
             }
         }
 
-        (graph, my_bag)
+        (graph, my_bag_index)
     }
 
     fn part1((graph, my_bag): Self::Parsed) -> Self::Output {

@@ -68,11 +68,11 @@ mod tests {
 
     #[test]
     fn d15p2() {
-        assert_eq!(Day15::part2(Day15::parse("0,3,6")), 175594);
+        assert_eq!(Day15::part2(Day15::parse("0,3,6")), 175_594);
         assert_eq!(Day15::part2(Day15::parse("1,3,2")), 2578);
-        assert_eq!(Day15::part2(Day15::parse("2,1,3")), 3544142);
-        assert_eq!(Day15::part2(Day15::parse("1,2,3")), 261214);
-        assert_eq!(Day15::part2(Day15::parse("2,3,1")), 6895259);
+        assert_eq!(Day15::part2(Day15::parse("2,1,3")), 3_544_142);
+        assert_eq!(Day15::part2(Day15::parse("1,2,3")), 261_214);
+        assert_eq!(Day15::part2(Day15::parse("2,3,1")), 6_895_259);
         assert_eq!(Day15::part2(Day15::parse("3,2,1")), 18);
         assert_eq!(Day15::part2(Day15::parse("3,1,2")), 362);
     }

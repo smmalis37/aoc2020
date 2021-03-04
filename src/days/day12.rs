@@ -1,3 +1,5 @@
+use std::mem::swap;
+
 use crate::{day_solver::DaySolver, util::*};
 
 pub struct Day12;
@@ -104,16 +106,14 @@ impl DaySolver<'_> for Day12 {
                 Order::West => waypoint_x -= m.count,
                 Order::Left => {
                     for _ in 0..m.count / 90 {
-                        let temp = waypoint_x;
-                        waypoint_x = -waypoint_y;
-                        waypoint_y = temp;
+                        swap(&mut waypoint_x, &mut waypoint_y);
+                        waypoint_x *= -1;
                     }
                 }
                 Order::Right => {
                     for _ in 0..m.count / 90 {
-                        let temp = waypoint_x;
-                        waypoint_x = waypoint_y;
-                        waypoint_y = -temp;
+                        swap(&mut waypoint_x, &mut waypoint_y);
+                        waypoint_y *= -1;
                     }
                 }
                 Order::Forward => {

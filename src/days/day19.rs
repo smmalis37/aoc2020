@@ -120,10 +120,8 @@ fn recursive_match(l: &[u8], rules: &FxHashMap<N, Rule>, me: N) -> Option<NonZer
         TwoSide(left, right) => {
             if let Some(x) = handle_subrules(l, rules, left) {
                 Some(x)
-            } else if let Some(x) = handle_subrules(l, rules, right) {
-                Some(x)
             } else {
-                None
+                handle_subrules(l, rules, right)
             }
         }
     }

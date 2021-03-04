@@ -28,9 +28,9 @@ impl<'a> DaySolver<'a> for Day4 {
                 }
                 pass = PassportBuilder::default();
             } else {
-                let colon = 3;
-                let key = &field[..colon];
-                let value = &field[colon + 1..];
+                const COLON: usize = 3;
+                let key = &field[..COLON];
+                let value = &field[COLON + 1..];
 
                 match key {
                     b"byr" => pass.birth_year(value),
@@ -84,11 +84,8 @@ impl<'a> DaySolver<'a> for Day4 {
             }
 
             if !(p.hair_color.len() == 7
-                && &p.hair_color[0..1] == b"#"
-                && p.hair_color[1..]
-                    .iter()
-                    .map(|&x| x as char)
-                    .all(|c| c.is_ascii_hexdigit()))
+                && p.hair_color[0] == b'#'
+                && p.hair_color[1..].iter().all(u8::is_ascii_hexdigit))
             {
                 continue;
             }
@@ -98,12 +95,7 @@ impl<'a> DaySolver<'a> for Day4 {
                 continue;
             }
 
-            if !(p.pass_id.len() == 9
-                && p.pass_id
-                    .iter()
-                    .map(|&x| x as char)
-                    .all(|c| c.is_ascii_digit()))
-            {
+            if !(p.pass_id.len() == 9 && p.pass_id.iter().all(u8::is_ascii_digit)) {
                 continue;
             }
 

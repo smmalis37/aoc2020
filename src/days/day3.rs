@@ -15,11 +15,11 @@ impl DaySolver<'_> for Day3 {
     }
 
     fn part1(map: Self::Parsed) -> Self::Output {
-        run_slope(&map, (1, 3))
+        run_slope(&map, (3, 1))
     }
 
     fn part2(map: Self::Parsed) -> Self::Output {
-        [(1, 1), (1, 3), (1, 5), (1, 7), (2, 1)]
+        [(1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
             .iter()
             .map(|&s| run_slope(&map, s))
             .product()
@@ -28,7 +28,7 @@ impl DaySolver<'_> for Day3 {
 
 fn run_slope<'a>(
     map: &<Day3 as DaySolver>::Parsed,
-    (y_count, x_count): (usize, usize),
+    (x_count, y_count): (usize, usize),
 ) -> <Day3 as DaySolver<'a>>::Output {
     let line_length = map.line_length();
     map.iter()

@@ -44,12 +44,12 @@ fn main() {
     day!(12, 820, 66_614);
     day!(13, 3_464, 760_171_380_521_445);
     day!(14, 18_630_548_206_046, 4_254_673_508_445);
-    //day!(15, 203, 9_007_186);
+    day!(15, 203, 9_007_186);
     day!(16, 19_093, 5_311_123_569_883);
     day!(17, 346, 1_632);
     day!(18, 1_451_467_526_514, 224_973_686_321_527);
     day!(19, 265, 394);
-    day!(20, 12519494280967);
+    //day!(20, 12519494280967);
 }
 
 fn solve<O, S: for<'a> DaySolver<'a, Output = O>>(
@@ -63,10 +63,10 @@ fn solve<O, S: for<'a> DaySolver<'a, Output = O>>(
     let mut args = std::env::args();
     if args.len() > 1 {
         if args.any(|x| x == day_number.to_string() || x == "a") {
-            bench::<S>(day_number, &trimmed);
+            bench::<S>(day_number, trimmed);
         }
     } else {
-        run::<S>(day_number, &trimmed, part1_output, part2_output);
+        run::<S>(day_number, trimmed, part1_output, part2_output);
     }
 }
 

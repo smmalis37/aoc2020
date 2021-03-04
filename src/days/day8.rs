@@ -37,7 +37,7 @@ impl DaySolver<'_> for Day8 {
         run(&program).1
     }
 
-    #[allow(clippy::needless_continue)]
+    #[allow(clippy::needless_continue, clippy::redundant_else)]
     fn part2(mut program: Self::Parsed) -> Self::Output {
         let trace = run(&program).2;
 
