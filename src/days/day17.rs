@@ -151,8 +151,10 @@ impl DaySolver<'_> for Day17 {
 }
 
 fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: FxHashSet<T>, adjusts: &[T]) -> usize {
-    let mut counts: FxHashMap<_, N> = FxHashMap::default();
-    let mut next = FxHashSet::default();
+    let mut counts: FxHashMap<_, N> =
+        FxHashMap::with_capacity_and_hasher(data.len() * adjusts.len(), Default::default());
+    let mut next =
+        FxHashSet::with_capacity_and_hasher(data.len() * adjusts.len(), Default::default());
 
     for _ in 0..6 {
         next.clear();
