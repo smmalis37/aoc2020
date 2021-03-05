@@ -13,24 +13,20 @@ enum Op {
 use Op::*;
 
 impl<'a> DaySolver<'a> for Day18 {
-    type Parsed = Vec<Vec<u8>>;
+    type Parsed = Vec<&'a [u8]>;
     type Output = N;
 
     fn parse(input: &'a str) -> Self::Parsed {
-        input
-            .as_bytes()
-            .split(|&x| x == b'\n')
-            .map(|l| l.iter().filter(|&&x| x != b' ').copied().collect())
-            .collect()
+        input.as_bytes().split(|&x| x == b'\n').collect()
     }
 
     fn part1(data: Self::Parsed) -> Self::Output {
-        data.into_iter().map(|e| eval(&mut e.into_iter())).sum()
+        data.into_iter().map(|e| eval(&mut e.iter().copied())).sum()
     }
 
     fn part2(data: Self::Parsed) -> Self::Output {
         data.into_iter()
-            .map(|e| eval(&mut transform(e.into_iter())))
+            .map(|e| eval(&mut transform(e.iter().copied())))
             .sum()
     }
 }
@@ -83,7 +79,7 @@ fn eval(tokens: &mut impl Iterator<Item = u8>) -> N {
     let mut prev_op = Some(Add);
     let mut result = 0;
 
-    while let Some(i) = tokens.next() {
+    while let Some(i) = tokens.find(|&x| x != b' ') {
         match i {
             b'0'..=b'9' => {
                 let x = (i - b'0') as N;
