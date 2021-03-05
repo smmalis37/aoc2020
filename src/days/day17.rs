@@ -156,7 +156,7 @@ fn run<T: std::hash::Hash + Eq + Copy + TupleAdd>(mut data: FxHashSet<T>, adjust
 
     for _ in 0..6 {
         next.clear();
-        counts.clear();
+        counts.iter_mut().for_each(|(_, x)| *x = 0);
 
         for &pos in &data {
             for &adj in adjusts {
