@@ -30,6 +30,7 @@ impl DaySolver<'_> for Day15 {
 
 fn run(data: &<Day15 as DaySolver>::Parsed, count: N) -> N {
     let mut map: Vec<Option<NZ>> = vec![None; count as usize];
+
     for (&x, i) in data.iter().zip(1..) {
         map[x as usize] = NZ::new(i);
     }
@@ -37,15 +38,12 @@ fn run(data: &<Day15 as DaySolver>::Parsed, count: N) -> N {
     let mut last = *data.last().unwrap();
 
     for turn in data.len() as N..count {
-        let i = last as usize;
         let nz_turn = NZ::new(turn);
-        if let Some(v) = map[i] {
-            map[i] = nz_turn;
-            last = nz_turn.unwrap().get() - v.get();
-        } else {
-            map[i] = nz_turn;
-            last = 0;
-        }
+        let prev = std::mem::replace(&mut map[last as usize], nz_turn);
+        last = match prev {
+            Some(v) => nz_turn.unwrap().get() - v.get(),
+            None => 0,
+        };
     }
 
     last
