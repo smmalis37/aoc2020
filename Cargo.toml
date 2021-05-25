@@ -13,7 +13,7 @@ bytecount = "0.6"
 derive_builder = "0.10.0-alpha"
 lexical = "5.2"
 petgraph = "0.5"
-arrayvec = "0.5"
+arrayvec = "0.7"
 memchr = "2.3"
 rustc-hash = "1.1"
 

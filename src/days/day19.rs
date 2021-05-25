@@ -12,8 +12,8 @@ type N = u8;
 #[derive(Clone)]
 pub enum Rule {
     Character(u8),
-    OneSide(ArrayVec<[N; 3]>),
-    TwoSide(ArrayVec<[N; 3]>, ArrayVec<[N; 3]>),
+    OneSide(ArrayVec<N, 3>),
+    TwoSide(ArrayVec<N, 3>, ArrayVec<N, 3>),
 }
 
 use Rule::*;

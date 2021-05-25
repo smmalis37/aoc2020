@@ -64,7 +64,7 @@ impl DaySolver<'_> for Day11 {
     }
 }
 
-type Neighbors = ArrayVec<[(usize, usize); 8]>;
+type Neighbors = ArrayVec<(usize, usize), 8>;
 type NeighborsGrid = Grid<Neighbors>;
 
 fn neighbors_loop(
